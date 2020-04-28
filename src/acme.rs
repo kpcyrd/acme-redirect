@@ -7,7 +7,7 @@ use acme_lib::{Directory, DirectoryUrl};
 #[derive(Debug)]
 pub struct Request<'a> {
     pub acme_url: &'a str,
-    pub account_email: &'a str,
+    pub account_email: Option<&'a str>,
     pub primary_name: &'a str,
     pub alt_names: &'a [String],
 }
@@ -21,7 +21,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     // Reads the private account key from persistence, or
     // creates a new one before accessing the API to establish
     // that it's there.
-    let acc = dir.account(&req.account_email)?;
+    let acc = dir.account(req.account_email)?;
 
     // Order a new TLS certificate for a domain.
     let alt_names = req.alt_names.iter().map(AsRef::as_ref).collect::<Vec<_>>();

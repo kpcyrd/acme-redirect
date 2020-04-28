@@ -73,7 +73,7 @@ pub struct CertConfig {
 #[derive(Debug, Clone)]
 pub struct Config {
     pub certs: Vec<CertConfig>,
-    pub acme_email: String,
+    pub acme_email: Option<String>,
     pub acme_url: String,
     pub renew_if_days_left: i64,
     pub data_dir: PathBuf,
@@ -83,15 +83,19 @@ pub struct Config {
 pub fn load(args: &Args) -> Result<Config> {
     // TODO: none of this is applied yet, we need to change all the arg parsing code for that
     let path = &args.config;
-    let config = load_file::<_, ConfigFile>(path)
+    let mut config = load_file::<_, ConfigFile>(path)
         .with_context(|| anyhow!("Failed to load config file {:?}", path))?;
+
+    if args.acme_email.is_some() {
+        config.acme.acme_email = args.acme_email.clone();
+    }
 
     let certs = load_from_folder(&args.config_dir)?
         .into_iter()
         .map(|c| c.cert)
         .collect();
     Ok(Config {
-        acme_email: args.acme_email.to_string(),
+        acme_email: args.acme_email.clone(),
         acme_url: args.acme_url.to_string(),
         renew_if_days_left: config.acme.renew_if_days_left.unwrap_or(DEFAULT_RENEW_IF_DAYS_LEFT),
         data_dir: PathBuf::from(&args.data_dir),

@@ -3,8 +3,6 @@
 [[package]]
 name = "acme-lib"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eeeadeb37865780841e827f6252d9e3d5e521e146fab6504dca1c8a71c497252"
 dependencies = [
  "base64 0.11.0",
  "lazy_static",

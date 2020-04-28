@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-acme-lib = "0.7.1"
-#acme-lib = { path = "../../github/acme-lib" }
+#acme-lib = "0.7.1"
+acme-lib = { path = "../acme-lib" }
 structopt = "0.3.14"
 anyhow = "1.0.28"
 env_logger = "0.7.1"

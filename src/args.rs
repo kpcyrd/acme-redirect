@@ -40,8 +40,8 @@ pub struct Args {
     pub data_dir: String,
     #[structopt(long, default_value=LETSENCRYPT, env="ACME_URL")]
     pub acme_url: String,
-    #[structopt(long, default_value = "nobody@example.com", env = "ACME_EMAIL")]
-    pub acme_email: String,
+    #[structopt(long, env = "ACME_EMAIL")]
+    pub acme_email: Option<String>,
     #[structopt(subcommand)]
     pub subcommand: SubCommand,
 }

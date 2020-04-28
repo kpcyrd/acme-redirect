@@ -51,7 +51,7 @@ fn main() -> Result<()> {
                     persist.clone(),
                     &mut challenge,
                     &acme::Request {
-                        account_email: &config.acme_email,
+                        account_email: config.acme_email.as_deref(),
                         acme_url: &config.acme_url,
                         primary_name: &cert.name,
                         alt_names: &cert.dns_names,
