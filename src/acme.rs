@@ -16,7 +16,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     let url = DirectoryUrl::Other(&req.acme_url);
 
     // Create a directory entrypoint.
-    let dir = Directory::from_url(persist, url)?;
+    let dir = Directory::from_url(persist.clone(), url)?;
 
     // Reads the private account key from persistence, or
     // creates a new one before accessing the API to establish
@@ -94,7 +94,12 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
 
     // Now download the certificate. Also stores the cert in
     // the persistence.
-    let _cert = ord_cert.download_and_save_cert()?;
+    info!("downloading certificate");
+    let cert = ord_cert.download_cert()?;
+
+    info!("storing certificate");
+    persist.store_cert(&req.primary_name, &cert)
+        .context("Failed to store certificate")?;
 
     Ok(())
 }

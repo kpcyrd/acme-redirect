@@ -1,10 +1,12 @@
+use acme_lib::Certificate;
+use std::os::unix::fs::symlink;
+use acme_lib::persist::{Persist, PersistKey, PersistKind};
 use crate::cert::CertInfo;
 use crate::config::Config;
 use crate::errors::*;
-use acme_lib::persist::Persist;
-use acme_lib::persist::PersistKey;
-use acme_lib::persist::PersistKind;
 use std::fs;
+use std::fs::File;
+use std::path::Path;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::os::unix::fs::OpenOptionsExt;
@@ -19,6 +21,16 @@ pub struct FilePersist {
 // TODO: there should be a symlink to the current cert
 // TODO: there should be a way to get the current cert for a given name
 // TODO: there should be a way to get the expire date of that cert
+
+fn create(path: &Path, mode: u32) -> Result<File> {
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(mode)
+        .open(path)
+        .map_err(Error::from)
+}
 
 impl FilePersist {
     pub fn new(config: &Config) -> FilePersist {
@@ -36,6 +48,48 @@ impl FilePersist {
         } else {
             Ok(None)
         }
+    }
+
+    pub fn store_cert(&self, name: &str, cert: &Certificate) -> Result<()> {
+        let now = time::now_utc();
+        let now = time::strftime("%Y%m%d", &now)?;
+
+        let folder = now + "-" + name;
+        let path = self.path.join("certs").join(&folder);
+        debug!("creating folder: {:?}", path);
+        fs::create_dir_all(&path)
+            .with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+
+        debug!("writing privkey");
+        let privkey = path.join("privkey");
+        {
+            let mut f = create(&privkey, 0o640)?;
+            f.write_all(cert.private_key().as_bytes())?;
+        }
+
+        debug!("writing cert");
+        let fullkey = path.join("fullchain");
+        {
+            let mut f = create(&fullkey, 0o644)?;
+            f.write_all(cert.certificate().as_bytes())?;
+        }
+
+        info!("marking cert live");
+        let live = self.path.join("live");
+        fs::create_dir_all(&live)
+            .with_context(|| anyhow!("Failed to create folder: {:?}", &live))?;
+        let live = live.join(name);
+
+        // TODO: this should be atomic (ln -sf)
+        // https://github.com/coreutils/coreutils/blob/2ed7c2867974ccf7abc61c34ad7bf9565489c18e/src/force-link.c#L142-L182
+        if live.exists() {
+            fs::remove_file(&live)
+                .context("Failed to delete old symlink")?;
+        }
+        symlink(&path, &live)
+            .with_context(|| anyhow!("Failed to create symlink: {:?} -> {:?}", path, live))?;
+
+        Ok(())
     }
 
     fn path_and_perms(&self, key: &PersistKey) -> Result<(PathBuf, u32)> {

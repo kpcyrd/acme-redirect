@@ -75,6 +75,14 @@ pub struct DaemonArgs {
 
 #[derive(Debug, StructOpt)]
 pub struct RenewArgs {
-    #[structopt(short = "n", long = "dry-run")]
+    #[structopt(short = "n", long)]
     pub dry_run: bool,
+    #[structopt(long)]
+    pub force_renew: bool,
+    // TODO: add code to check if the cert actually fulfills the dns_names in the config
+    #[structopt(long)]
+    pub skip_restarts: bool,
+    /// Don't clean up old certs that are not live anymore
+    #[structopt(long)]
+    pub skip_cleanup: bool,
 }

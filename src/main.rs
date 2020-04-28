@@ -45,6 +45,7 @@ fn main() -> Result<()> {
             let persist = FilePersist::new(&config);
             let mut challenge = Challenge::new(&config);
 
+            // TODO: failing one cert shouldn't abort renew
             for cert in &config.certs {
                 // if needs renew
                 acme::request(
