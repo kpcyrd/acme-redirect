@@ -54,26 +54,28 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
         // certificate for:
         //
         // http://mydomain.io/.well-known/acme-challenge/<token>
-        let chall = auths[0].http_challenge();
+        for auth in &auths {
+            let chall = auth.http_challenge();
 
-        // The token is the filename.
-        let token = chall.http_token();
+            // The token is the filename.
+            let token = chall.http_token();
 
-        // The proof is the contents of the file
-        let proof = chall.http_proof();
+            // The proof is the contents of the file
+            let proof = chall.http_proof();
 
-        // Place the proof
-        challenge.write(token, &proof)?;
+            // Place the proof
+            challenge.write(token, &proof)?;
 
-        // After the file is accessible from the web, the calls
-        // this to tell the ACME API to start checking the
-        // existence of the proof.
-        //
-        // The order at ACME will change status to either
-        // confirm ownership of the domain, or fail due to the
-        // not finding the proof. To see the change, we poll
-        // the API with 5000 milliseconds wait between.
-        chall.validate(5000)?;
+            // After the file is accessible from the web, the calls
+            // this to tell the ACME API to start checking the
+            // existence of the proof.
+            //
+            // The order at ACME will change status to either
+            // confirm ownership of the domain, or fail due to the
+            // not finding the proof. To see the change, we poll
+            // the API with 5000 milliseconds wait between.
+            chall.validate(5000)?;
+        }
 
         // Update the state against the ACME API.
         ord_new.refresh()?;
