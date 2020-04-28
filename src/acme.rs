@@ -21,10 +21,12 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     // Reads the private account key from persistence, or
     // creates a new one before accessing the API to establish
     // that it's there.
+    info!("authenticating with account");
     let acc = dir.account(req.account_email)?;
 
     // Order a new TLS certificate for a domain.
     let alt_names = req.alt_names.iter().map(AsRef::as_ref).collect::<Vec<_>>();
+    info!("sending certificate order");
     let mut ord_new = acc.new_order(&req.primary_name, &alt_names)?;
 
     // If the ownership of the domain(s) have already been
@@ -33,11 +35,13 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     let ord_csr = loop {
         // are we done?
         if let Some(ord_csr) = ord_new.confirm_validations() {
+            info!("order has been confirmed");
             break ord_csr;
         }
 
         // Get the possible authorizations (for a single domain
         // this will only be one element).
+        info!("fetch necessary authentications");
         let auths = ord_new.authorizations()?;
 
         // For HTTP, the challenge is a text file that needs to

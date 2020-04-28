@@ -38,23 +38,29 @@ impl FilePersist {
         }
     }
 
-    fn path_and_perms(&self, key: &PersistKey) -> (PathBuf, u32) {
+    fn path_and_perms(&self, key: &PersistKey) -> Result<(PathBuf, u32)> {
         let (folder, ext, mode) = match key.kind {
             PersistKind::Certificate => (self.path.join("certs"), "crt", 0o644),
             PersistKind::PrivateKey => (self.path.join("privs"), "key", 0o640),
             PersistKind::AccountPrivateKey => (self.path.join("accs"), "key", 0o600),
         };
 
+        if !folder.exists() {
+            fs::create_dir(&folder)
+                .with_context(|| anyhow!("Failed to create folder: {:?}", folder))?;
+        }
+
         let mut f_name = folder;
         f_name.push(key.to_string());
         f_name.set_extension(ext);
-        (f_name, mode)
+        Ok((f_name, mode))
     }
 }
 
 impl Persist for FilePersist {
     fn put(&self, key: &PersistKey, value: &[u8]) -> acme_lib::Result<()> {
-        let (f_name, mode) = self.path_and_perms(&key);
+        let (f_name, mode) = self.path_and_perms(&key)
+            .map_err(|e| e.to_string())?;
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -68,7 +74,8 @@ impl Persist for FilePersist {
     }
 
     fn get(&self, key: &PersistKey) -> acme_lib::Result<Option<Vec<u8>>> {
-        let (f_name, _) = self.path_and_perms(&key);
+        let (f_name, _) = self.path_and_perms(&key)
+            .map_err(|e| e.to_string())?;
         let ret = if let Ok(mut file) = fs::File::open(f_name) {
             let mut v = vec![];
             file.read_to_end(&mut v)?;
