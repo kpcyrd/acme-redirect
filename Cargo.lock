@@ -3,6 +3,7 @@
 [[package]]
 name = "acme-lib"
 version = "0.7.1"
+source = "git+https://github.com/kpcyrd/acme-lib?branch=email#dc0e6883dbfd4f83487ce619cbafb7204c52c9d1"
 dependencies = [
  "base64 0.11.0",
  "lazy_static",
