@@ -1,16 +1,16 @@
-use acme_lib::Certificate;
-use std::os::unix::fs::symlink;
-use acme_lib::persist::{Persist, PersistKey, PersistKind};
 use crate::cert::CertInfo;
 use crate::config::Config;
 use crate::errors::*;
+use acme_lib::persist::{Persist, PersistKey, PersistKind};
+use acme_lib::Certificate;
 use std::fs;
 use std::fs::File;
-use std::path::Path;
 use std::fs::OpenOptions;
-use std::io::ErrorKind;
 use std::io::prelude::*;
+use std::io::ErrorKind;
+use std::os::unix::fs::symlink;
 use std::os::unix::fs::OpenOptionsExt;
+use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(Clone)]
@@ -56,8 +56,7 @@ impl FilePersist {
         let now = time::strftime("%Y%m%d", &now)?;
 
         let path = self.path.join("certs");
-        fs::create_dir(&path)
-                .with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+        fs::create_dir(&path).with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
 
         let mut i = 0;
         let path = loop {
@@ -74,7 +73,7 @@ impl FilePersist {
                 Err(e) if e.kind() == ErrorKind::AlreadyExists => (),
                 Err(_) => {
                     err.with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
-                },
+                }
                 Ok(_) => break path,
             }
 
@@ -104,8 +103,7 @@ impl FilePersist {
         // TODO: this should be atomic (ln -sf)
         // https://github.com/coreutils/coreutils/blob/2ed7c2867974ccf7abc61c34ad7bf9565489c18e/src/force-link.c#L142-L182
         if live.exists() {
-            fs::remove_file(&live)
-                .context("Failed to delete old symlink")?;
+            fs::remove_file(&live).context("Failed to delete old symlink")?;
         }
         symlink(&path, &live)
             .with_context(|| anyhow!("Failed to create symlink: {:?} -> {:?}", path, live))?;
@@ -134,8 +132,7 @@ impl FilePersist {
 
 impl Persist for FilePersist {
     fn put(&self, key: &PersistKey, value: &[u8]) -> acme_lib::Result<()> {
-        let (f_name, mode) = self.path_and_perms(&key)
-            .map_err(|e| e.to_string())?;
+        let (f_name, mode) = self.path_and_perms(&key).map_err(|e| e.to_string())?;
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -149,8 +146,7 @@ impl Persist for FilePersist {
     }
 
     fn get(&self, key: &PersistKey) -> acme_lib::Result<Option<Vec<u8>>> {
-        let (f_name, _) = self.path_and_perms(&key)
-            .map_err(|e| e.to_string())?;
+        let (f_name, _) = self.path_and_perms(&key).map_err(|e| e.to_string())?;
         let ret = if let Ok(mut file) = fs::File::open(f_name) {
             let mut v = vec![];
             file.read_to_end(&mut v)?;

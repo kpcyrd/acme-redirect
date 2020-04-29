@@ -3,6 +3,7 @@ use openssl::x509::X509;
 
 #[derive(Debug)]
 pub struct CertInfo {
+    pub not_before: String,
     pub expires: time::Tm,
 }
 
@@ -11,8 +12,10 @@ impl CertInfo {
         // load as x509
         let x509 = X509::from_pem(s).context("Failed to parse pem file")?;
 
+        let not_before = x509.not_before().to_string();
+
         // convert asn1 time to Tm
-        let not_after = format!("{}", x509.not_after());
+        let not_after = x509.not_after().to_string();
         // Display trait produces this format, which is kinda dumb.
         // Apr 19 08:48:46 2019 GMT
         let expires = parse_date(&not_after);
@@ -20,7 +23,10 @@ impl CertInfo {
 
         // dur.num_days()
 
-        Ok(CertInfo { expires })
+        Ok(CertInfo {
+            not_before,
+            expires,
+        })
     }
 
     pub fn days_left(&self) -> i64 {

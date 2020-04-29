@@ -98,7 +98,8 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     let cert = ord_cert.download_cert()?;
 
     info!("storing certificate");
-    persist.store_cert(&req.primary_name, &cert)
+    persist
+        .store_cert(&req.primary_name, &cert)
         .context("Failed to store certificate")?;
 
     Ok(())

@@ -1,12 +1,12 @@
 use crate::args::DaemonArgs;
-use crate::config::Config;
-use std::fs;
 use crate::chall;
+use crate::config::Config;
 use crate::errors::*;
 use crate::http_responses::REDIRECT;
 use crate::http_responses::*;
 use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
 use actix_web::{middleware, App, HttpServer};
+use std::fs;
 
 fn get_host(req: &HttpRequest) -> Option<&str> {
     if let Some(host) = req.headers().get("Host") {
@@ -55,7 +55,11 @@ async fn redirect(req: HttpRequest) -> impl Responder {
 }
 
 #[get("/.well-known/acme-challenge/{chall}")]
-async fn acme(token: web::Path<String>, data: web::Data<Config>, req: HttpRequest) -> impl Responder {
+async fn acme(
+    token: web::Path<String>,
+    data: web::Data<Config>,
+    req: HttpRequest,
+) -> impl Responder {
     debug!("REQ: {:?}", req);
     info!("acme: {:?}", token);
 

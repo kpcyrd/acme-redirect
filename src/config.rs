@@ -1,6 +1,6 @@
 use crate::args::Args;
-use serde::de::DeserializeOwned;
 use crate::errors::*;
+use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use std::ffi::OsStr;
 use std::fs;
@@ -33,8 +33,7 @@ fn load_str<T: DeserializeOwned>(s: &str) -> Result<T> {
 }
 
 fn load_file<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> Result<T> {
-    let buf = fs::read_to_string(path.as_ref())
-        .context("Failed to read file")?;
+    let buf = fs::read_to_string(path.as_ref()).context("Failed to read file")?;
     load_str(&buf)
 }
 
@@ -97,7 +96,10 @@ pub fn load(args: &Args) -> Result<Config> {
     Ok(Config {
         acme_email: args.acme_email.clone(),
         acme_url: args.acme_url.to_string(),
-        renew_if_days_left: config.acme.renew_if_days_left.unwrap_or(DEFAULT_RENEW_IF_DAYS_LEFT),
+        renew_if_days_left: config
+            .acme
+            .renew_if_days_left
+            .unwrap_or(DEFAULT_RENEW_IF_DAYS_LEFT),
         data_dir: PathBuf::from(&args.data_dir),
         chall_dir: PathBuf::from(&args.chall_dir),
         certs,
