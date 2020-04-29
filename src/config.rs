@@ -64,9 +64,7 @@ pub struct CertConfig {
     #[serde(default)]
     pub must_staple: bool,
     #[serde(default)]
-    pub reload_services: Vec<String>,
-    #[serde(default)]
-    pub restart_services: Vec<String>,
+    pub exec: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
