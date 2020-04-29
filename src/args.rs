@@ -1,4 +1,6 @@
-use structopt::clap::AppSettings;
+use crate::errors::*;
+use std::io::stdout;
+use structopt::clap::{AppSettings, Shell};
 use structopt::StructOpt;
 
 const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
@@ -7,8 +9,8 @@ const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
 #[derive(Debug, StructOpt)]
 #[structopt(global_settings = &[AppSettings::ColoredHelp])]
 pub struct Args {
-    #[structopt(short, long, global = true)]
-    pub verbose: bool,
+    #[structopt(short, long, global = true, parse(from_occurrences))]
+    pub verbose: u8,
     #[structopt(
         short,
         long,
@@ -56,6 +58,8 @@ pub enum SubCommand {
     Status,
     /// Request new certificates if needed
     Renew(RenewArgs),
+    /// Generate shell completions
+    Completions(Completions),
 }
 
 #[derive(Debug, StructOpt)]
@@ -85,4 +89,15 @@ pub struct RenewArgs {
     /// Don't clean up old certs that are not live anymore
     #[structopt(long)]
     pub skip_cleanup: bool,
+}
+
+#[derive(Debug, StructOpt)]
+pub struct Completions {
+    #[structopt(possible_values=&Shell::variants())]
+    pub shell: Shell,
+}
+
+pub fn gen_completions(args: &Completions) -> Result<()> {
+    Args::clap().gen_completions_to("acme-redirect", args.shell, &mut stdout());
+    Ok(())
 }

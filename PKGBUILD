@@ -21,6 +21,14 @@ package() {
   install -Dm 755 -t "${pkgdir}/usr/bin" \
     target/release/acme-redirect
 
+  # install completions
+  install -d "${pkgdir}/usr/share/bash-completion/completions" \
+             "${pkgdir}/usr/share/zsh/site-functions" \
+             "${pkgdir}/usr/share/fish/vendor_completions.d"
+  "${pkgdir}/usr/bin/acme-redirect" completions bash > "${pkgdir}/usr/share/bash-completion/completions/acme-redirect"
+  "${pkgdir}/usr/bin/acme-redirect" completions zsh > "${pkgdir}/usr/share/zsh/site-functions/_acme-redirect"
+  "${pkgdir}/usr/bin/acme-redirect" completions fish > "${pkgdir}/usr/share/fish/vendor_completions.d/acme-redirect.fish"
+
   # install configs
   install -dm 755 "${pkgdir}/etc/acme-redirect.d"
   install -Dm 644 -t "${pkgdir}/etc" \
@@ -28,6 +36,8 @@ package() {
 
   # install systemd configs
   install -Dm 644 -t "${pkgdir}/usr/lib/systemd/system" \
+    contrib/systemd/acme-redirect-renew.service \
+    contrib/systemd/acme-redirect-renew.timer \
     contrib/systemd/acme-redirect.service
   install -Dm 644 contrib/systemd/acme-redirect.sysusers "${pkgdir}/usr/lib/sysusers.d/acme-redirect.conf"
   install -Dm 644 contrib/systemd/acme-redirect.tmpfiles "${pkgdir}/usr/lib/tmpfiles.d/acme-redirect.conf"

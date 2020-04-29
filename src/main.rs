@@ -11,15 +11,19 @@ mod persist;
 use crate::args::{Args, SubCommand};
 use crate::chall::Challenge;
 use crate::errors::*;
-use colored::Colorize;
 use crate::persist::FilePersist;
+use colored::Colorize;
 use env_logger::Env;
 use structopt::StructOpt;
 
 fn main() -> Result<()> {
     let args = Args::from_args();
 
-    let logging = if args.verbose { "debug" } else { "info" };
+    let logging = match args.verbose {
+        0 => "info",
+        1 => "acme-redirect=debug",
+        _ => "debug",
+    };
     env_logger::init_from_env(Env::default().default_filter_or(logging));
 
     let config = config::load(&args)?;
@@ -96,6 +100,7 @@ fn main() -> Result<()> {
             // TODO: cleanup unreferenced certs
             // TODO: pass dry-run flag
         }
+        SubCommand::Completions(completions) => args::gen_completions(&completions)?,
     }
 
     Ok(())
