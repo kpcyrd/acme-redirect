@@ -8,6 +8,7 @@ use std::fs;
 use std::fs::File;
 use std::path::Path;
 use std::fs::OpenOptions;
+use std::io::ErrorKind;
 use std::io::prelude::*;
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::PathBuf;
@@ -54,11 +55,31 @@ impl FilePersist {
         let now = time::now_utc();
         let now = time::strftime("%Y%m%d", &now)?;
 
-        let folder = now + "-" + name;
-        let path = self.path.join("certs").join(&folder);
-        debug!("creating folder: {:?}", path);
-        fs::create_dir_all(&path)
-            .with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+        let path = self.path.join("certs");
+        fs::create_dir(&path)
+                .with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+
+        let mut i = 0;
+        let path = loop {
+            let mut folder = now.clone() + "-" + name;
+            if i > 0 {
+                folder.push_str(&format!("-{}", i));
+            }
+
+            let path = path.join(folder);
+            debug!("creating folder: {:?}", path);
+
+            let err = fs::create_dir(&path);
+            match err {
+                Err(e) if e.kind() == ErrorKind::AlreadyExists => (),
+                Err(_) => {
+                    err.with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+                },
+                Ok(_) => break path,
+            }
+
+            i += 1;
+        };
 
         debug!("writing privkey");
         let privkey = path.join("privkey");
