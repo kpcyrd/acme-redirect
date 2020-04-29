@@ -1,0 +1,5 @@
+[Unit]
+Description=acme-redirect: renew certs if necessary
+
+[Service]
+ExecStart=/usr/bin/acme-redirect renew

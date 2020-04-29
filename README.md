@@ -9,5 +9,12 @@ This sovles the chicken-egg problem of the certificate being necessary to start 
 # Development
 
 ```
-cargo run -- --config contrib/confs/acme-redirect.conf --config-dir target/ --chall-dir . daemon -B '[::]:8080' -v
+mkdir tmp
+export ACME_CONFIG="$PWD/contrib/confs/acme-redirect.conf"
+export ACME_CONFIG_DIR="$PWD/contrib/confs/certs.d/"
+export ACME_CHALL_DIR="$PWD/tmp/"
+export ACME_DATA_DIR="$PWD/tmp/"
+
+cargo run -- status
+cargo run -- daemon -B '[::]:8080' -v
 ```

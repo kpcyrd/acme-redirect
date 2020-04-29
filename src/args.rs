@@ -14,7 +14,7 @@ pub struct Args {
         long,
         value_name = "path",
         default_value = "/etc/acme-redirect.conf",
-        env = "ACME_CONFIG_DIR"
+        env = "ACME_CONFIG"
     )]
     pub config: String,
     #[structopt(

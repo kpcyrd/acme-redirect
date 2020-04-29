@@ -1,0 +1,9 @@
+[Unit]
+Description=acme-redirect: renew certs if necessary
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target
