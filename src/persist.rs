@@ -86,7 +86,8 @@ impl FilePersist {
         let now = time::strftime("%Y%m%d", &now)?;
 
         let path = self.path.join("certs");
-        fs::create_dir(&path).with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+        debug!("creating folder: {:?}", path);
+        fs::create_dir_all(&path).with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
 
         let mut i = 0;
         let path = loop {
@@ -96,7 +97,7 @@ impl FilePersist {
             }
 
             let path = path.join(folder);
-            debug!("creating folder: {:?}", path);
+            debug!("try atomically claiming folder: {:?}", path);
 
             let err = fs::create_dir(&path);
             match err {

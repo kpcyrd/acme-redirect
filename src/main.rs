@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
     let logging = match args.verbose {
         0 => "info",
-        1 => "acme-redirect=debug",
+        1 => "info,acme-redirect=debug",
         _ => "debug",
     };
     env_logger::init_from_env(Env::default().default_filter_or(logging));

@@ -74,7 +74,7 @@ pub fn run(config: Config, args: RenewArgs) -> Result<()> {
 
     for cert in &config.certs {
         if let Err(err) = renew_cert(&args, &config, &persist, &cert) {
-            error!("Failed to renew: {}", err);
+            error!("Failed to renew: {:#}", err);
         }
     }
 
