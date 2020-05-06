@@ -1,7 +1,6 @@
 use crate::cert::CertInfo;
 use crate::config::Config;
 use crate::errors::*;
-use acme_lib::persist::{Persist, PersistKey, PersistKind};
 use acme_lib::Certificate;
 use std::fs;
 use std::fs::File;
@@ -40,15 +39,46 @@ impl FilePersist {
         }
     }
 
+    fn acc_privkey_path(&self) -> PathBuf {
+        self.path.join("acc.key")
+    }
+
+    pub fn load_acc_privkey(&self) -> Result<Option<String>> {
+        let path = self.acc_privkey_path();
+        if path.exists() {
+            let buf = fs::read_to_string(&path)?;
+            Ok(Some(buf))
+        } else {
+            Ok(None)
+        }
+    }
+
     pub fn load_cert_info(&self, name: &str) -> Result<Option<CertInfo>> {
-        let key = PersistKey::new("", PersistKind::Certificate, name);
-        if let Some(cert) = self.get(&key)? {
-            // TODO: should an invalid cert prevent us from renewing it?
-            let cert = CertInfo::from_pem(&cert)?;
+        let mut path = self.path.join("live");
+        path.push(name);
+        path.push("fullchain");
+
+        if path.exists() {
+            let buf = fs::read(&path)?;
+            let cert = CertInfo::from_pem(&buf)?;
             Ok(Some(cert))
         } else {
             Ok(None)
         }
+    }
+
+    pub fn store_acc_privkey(&self, key: &str) -> Result<()> {
+        let path = self.acc_privkey_path();
+
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .mode(0o600)
+            .open(path)?;
+
+        file.write_all(key.as_bytes())?;
+        Ok(())
     }
 
     pub fn store_cert(&self, name: &str, cert: &Certificate) -> Result<()> {
@@ -109,51 +139,5 @@ impl FilePersist {
             .with_context(|| anyhow!("Failed to create symlink: {:?} -> {:?}", path, live))?;
 
         Ok(())
-    }
-
-    fn path_and_perms(&self, key: &PersistKey) -> Result<(PathBuf, u32)> {
-        let (folder, ext, mode) = match key.kind {
-            PersistKind::Certificate => (self.path.join("certs"), "crt", 0o644),
-            PersistKind::PrivateKey => (self.path.join("privs"), "key", 0o640),
-            PersistKind::AccountPrivateKey => (self.path.join("accs"), "key", 0o600),
-        };
-
-        if !folder.exists() {
-            fs::create_dir(&folder)
-                .with_context(|| anyhow!("Failed to create folder: {:?}", folder))?;
-        }
-
-        let mut f_name = folder;
-        f_name.push(key.to_string());
-        f_name.set_extension(ext);
-        Ok((f_name, mode))
-    }
-}
-
-impl Persist for FilePersist {
-    fn put(&self, key: &PersistKey, value: &[u8]) -> acme_lib::Result<()> {
-        let (f_name, mode) = self.path_and_perms(&key).map_err(|e| e.to_string())?;
-
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .mode(mode)
-            .open(f_name)?;
-
-        file.write_all(value)?;
-        Ok(())
-    }
-
-    fn get(&self, key: &PersistKey) -> acme_lib::Result<Option<Vec<u8>>> {
-        let (f_name, _) = self.path_and_perms(&key).map_err(|e| e.to_string())?;
-        let ret = if let Ok(mut file) = fs::File::open(f_name) {
-            let mut v = vec![];
-            file.read_to_end(&mut v)?;
-            Some(v)
-        } else {
-            None
-        };
-        Ok(ret)
     }
 }

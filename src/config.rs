@@ -126,8 +126,7 @@ mod tests {
                     name: "example.com".to_string(),
                     dns_names: vec!["example.com".to_string(), "www.example.com".to_string(),],
                     must_staple: false,
-                    reload_services: vec![],
-                    restart_services: vec![],
+                    exec: vec![],
                 },
             }
         );
