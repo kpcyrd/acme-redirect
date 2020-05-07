@@ -4,7 +4,7 @@ A minimal http daemon that answers acme challenges and redirects everything
 else to https.
 
 A minimal configuration looks like this:
-```
+```toml
 # cat /etc/acme-redirect.d/example.com.conf
 [cert]
 name = "example.com"
@@ -18,12 +18,12 @@ exec = [
 ```
 
 Request certificates:
-```
+```bash
 acme-redirect renew
 ```
 
 Setup automatic renew:
-```
+```bash
 systemctl enable --now acme-redirect-renew.timer
 ```
 
@@ -37,7 +37,7 @@ Your certificate is located here:
 
 ## Build from source
 
-```
+```bash
 git clone https://github.com/kpcyrd/acme-redirect.git
 cd acme-redirect/
 cargo build --release
@@ -62,7 +62,7 @@ sudo systemd-tmpfiles --create
 
 # Development
 
-```
+```bash
 mkdir tmp
 export ACME_CONFIG="$PWD/contrib/confs/acme-redirect.conf"
 export ACME_CONFIG_DIR="$PWD/contrib/confs/certs.d/"
