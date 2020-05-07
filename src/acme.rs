@@ -1,11 +1,8 @@
 use crate::chall::Challenge;
 use crate::errors::*;
 use crate::persist::FilePersist;
-use acme_lib::create_p384_key;
-use acme_lib::{Directory, DirectoryUrl};
-use acme_lib::persist::{Persist, PersistKey, PersistKind, MemoryPersist};
-
-const REALM: &str = ""; // dummy
+use acme_micro::create_p384_key;
+use acme_micro::{Directory, DirectoryUrl};
 
 #[derive(Debug)]
 pub struct Request<'a> {
@@ -15,38 +12,22 @@ pub struct Request<'a> {
     pub alt_names: &'a [String],
 }
 
-fn try_load_acc(persist: &FilePersist, mem: &MemoryPersist) -> Result<bool> {
-    if let Some(acc) = persist.load_acc_privkey()? {
-        let p = PersistKey::new(REALM, PersistKind::AccountPrivateKey , REALM);
-        mem.put(&p, acc.as_bytes()).unwrap();
-        Ok(true)
-    } else {
-        Ok(false)
-    }
-}
-
-fn get_acc_key(mem: &MemoryPersist) -> String {
-    let p = PersistKey::new(REALM, PersistKind::AccountPrivateKey , REALM);
-    let privkey = mem.get(&p).unwrap().unwrap();
-    String::from_utf8(privkey).unwrap()
-}
-
 pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -> Result<()> {
     let url = DirectoryUrl::Other(&req.acme_url);
+    let dir = Directory::from_url(url)?;
 
-    // Create a directory entrypoint.
-    let mem = MemoryPersist::new();
+    let contact = vec![];
 
-    let already_existed = try_load_acc(&persist, &mem)?;
-    let dir = Directory::from_url(mem.clone(), url)?;
-
-    info!("authenticating with account");
-    let acc = dir.account_with_realm(REALM, vec![])?;
-    if !already_existed {
-        info!("saving private key for newly registered account");
-        let privkey = get_acc_key(&mem);
-        persist.store_acc_privkey(&privkey)?;
-    }
+    let acc = if let Some(acc) = persist.load_acc_privkey()? {
+        info!("authenticating with existing account");
+        dir.load_account(&acc, contact)?
+    } else {
+        info!("registering account");
+        let acc = dir.register_account(contact)?;
+        info!("successfully created account, saving private key");
+        persist.store_acc_privkey(&acc.acme_private_key_pem())?;
+        acc
+    };
 
     // Order a new TLS certificate for a domain.
     let alt_names = req.alt_names.iter().map(AsRef::as_ref).collect::<Vec<_>>();
@@ -119,7 +100,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     // Now download the certificate. Also stores the cert in
     // the persistence.
     info!("downloading certificate");
-    let cert = ord_cert.download_and_save_cert()?;
+    let cert = ord_cert.download_cert()?;
 
     info!("storing certificate");
     persist

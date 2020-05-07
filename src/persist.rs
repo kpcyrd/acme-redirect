@@ -1,7 +1,7 @@
 use crate::cert::CertInfo;
 use crate::config::Config;
 use crate::errors::*;
-use acme_lib::Certificate;
+use acme_micro::Certificate;
 use std::fs;
 use std::fs::File;
 use std::fs::OpenOptions;
