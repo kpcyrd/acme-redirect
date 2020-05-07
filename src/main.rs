@@ -10,7 +10,7 @@ mod status;
 mod http_responses;
 mod persist;
 
-use crate::args::{Args, SubCommand};
+use crate::args::{Args, SubCommand, Cmd};
 use crate::errors::*;
 use env_logger::Env;
 use structopt::StructOpt;
@@ -25,14 +25,17 @@ fn main() -> Result<()> {
     };
     env_logger::init_from_env(Env::default().default_filter_or(logging));
 
-    let config = config::load(&args)?;
-    debug!("Loaded runtime config: {:?}", config);
+    match args.subcommand.clone() {
+        SubCommand::Cmds(subcommand) => {
+            let config = config::load(&args)?;
+            debug!("Loaded runtime config: {:?}", config);
 
-    match args.subcommand {
-        SubCommand::Setup(_args) => (),
-        SubCommand::Daemon(args) => daemon::run(config, args)?,
-        SubCommand::Status => status::run(config)?,
-        SubCommand::Renew(args) => renew::run(config, args)?,
+            match subcommand {
+                Cmd::Daemon(args) => daemon::run(config, args)?,
+                Cmd::Status => status::run(config)?,
+                Cmd::Renew(args) => renew::run(config, args)?,
+            }
+        },
         SubCommand::Completions(completions) => args::gen_completions(&completions)?,
     }
 

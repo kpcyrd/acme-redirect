@@ -48,26 +48,25 @@ pub struct Args {
     pub subcommand: SubCommand,
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Clone, StructOpt)]
 pub enum SubCommand {
-    /// Setup environment
-    Setup(SetupArgs),
+    #[structopt(flatten)]
+    Cmds(Cmd),
+    /// Generate shell completions
+    Completions(Completions),
+}
+
+#[derive(Debug, Clone, StructOpt)]
+pub enum Cmd {
     /// Run the redirect daemon
     Daemon(DaemonArgs),
     /// Show the status of our certificates
     Status,
     /// Request new certificates if needed
     Renew(RenewArgs),
-    /// Generate shell completions
-    Completions(Completions),
 }
 
-#[derive(Debug, StructOpt)]
-pub struct SetupArgs {
-    pub email: Option<String>,
-}
-
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Clone, StructOpt)]
 pub struct DaemonArgs {
     #[structopt(long = "chroot")]
     pub chroot: Option<String>,
@@ -77,7 +76,7 @@ pub struct DaemonArgs {
     pub bind_addr: String,
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Clone, StructOpt)]
 pub struct RenewArgs {
     #[structopt(short = "n", long)]
     pub dry_run: bool,
@@ -91,7 +90,7 @@ pub struct RenewArgs {
     pub skip_cleanup: bool,
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Clone, StructOpt)]
 pub struct Completions {
     #[structopt(possible_values=&Shell::variants())]
     pub shell: Shell,

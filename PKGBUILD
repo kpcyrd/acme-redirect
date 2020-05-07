@@ -3,10 +3,11 @@
 pkgname=acme-redirect
 pkgver=0.0.0
 pkgrel=1
-pkgdesc='TODO'
+pkgdesc='Minimal http daemon that answers acme challenges and redirects everything else to https'
 url='https://github.com/kpcyrd/acme-redirect'
 arch=('x86_64')
 license=('GPL3')
+depends=('openssl')
 makedepends=('cargo' 'scdoc')
 backup=('etc/acme-redirect.conf')
 
