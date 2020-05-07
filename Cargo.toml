@@ -1,10 +1,12 @@
 [package]
 name = "acme-redirect"
 version = "0.1.0"
-authors = ["user"]
+description = "Minimal http daemon that answers acme challenges and redirects everything else to https"
+authors = ["kpcyrd <git@rxv.cc>"]
+license = "GPL-3.0"
+repository = "https://github.com/kpcyrd/acme-redirect"
+readme = "README.md"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 acme-micro = "0.8"
