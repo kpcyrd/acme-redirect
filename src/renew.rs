@@ -26,17 +26,22 @@ fn should_request_cert(args: &RenewArgs, config: &Config, persist: &FilePersist,
     }
 }
 
-fn execute_hooks(hooks: &[String]) -> Result<()> {
+fn execute_hooks(hooks: &[String], dry_run: bool) -> Result<()> {
     for exec in hooks {
-        info!("executing hook: {:?}", exec);
+        if dry_run {
+            info!("executing hook: {:?} (dry run)", exec);
+        } else {
+            info!("executing hook: {:?}", exec);
 
-        let status = Command::new("sh")
-            .arg("-c")
-            .arg(exec)
-            .status()?;
+            let status = Command::new("sh")
+                .arg("-c")
+                .arg(exec)
+                .status()
+                .context("Failed to spawn shell for hook")?;
 
-        if !status.success() {
-            bail!("Failed to execute hook: {:?}", exec);
+            if !status.success() {
+                error!("Failed to execute hook: {:?}", exec);
+            }
         }
     }
     Ok(())
@@ -48,6 +53,7 @@ fn renew_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &C
 
     if request_cert && args.dry_run {
         info!("renewing {:?} (dry run)", cert.name);
+        execute_hooks(&cert.exec, args.skip_restarts)?;
     } else if request_cert {
         info!("renewing {:?}", cert.name);
         acme::request(
@@ -63,9 +69,14 @@ fn renew_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &C
         .with_context(|| anyhow!("Fail to get certificate {:?}", cert.name))?;
         challenge.cleanup()?;
 
-        execute_hooks(&cert.exec)?;
+        execute_hooks(&cert.exec, args.skip_restarts)?;
     }
 
+    Ok(())
+}
+
+fn cleanup_certs(_dry_run: bool) -> Result<()> {
+    // debug!("TODO: cleanup old certs");
     Ok(())
 }
 
@@ -78,8 +89,7 @@ pub fn run(config: Config, args: RenewArgs) -> Result<()> {
         }
     }
 
-    // TODO: cleanup unreferenced certs
-    // TODO: pass dry-run flag
+    cleanup_certs(args.dry_run)?;
 
     Ok(())
 }
