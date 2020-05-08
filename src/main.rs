@@ -20,15 +20,16 @@ fn main() -> Result<()> {
 
     let logging = match args.verbose {
         0 => "info",
-        1 => "info,acme-redirect=debug",
-        _ => "debug",
+        1 => "info,acme_redirect=debug",
+        2 => "debug",
+        _ => "debug,acme_redirect=trace",
     };
     env_logger::init_from_env(Env::default().default_filter_or(logging));
 
     match args.subcommand.clone() {
         SubCommand::Cmds(subcommand) => {
             let config = config::load(&args)?;
-            debug!("Loaded runtime config: {:?}", config);
+            trace!("Loaded runtime config: {:?}", config);
 
             match subcommand {
                 Cmd::Daemon(args) => daemon::run(config, args)?,
