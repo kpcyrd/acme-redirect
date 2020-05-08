@@ -1,6 +1,6 @@
 [package]
 name = "acme-redirect"
-version = "0.1.0"
+version = "0.2.0"
 description = "Minimal http daemon that answers acme challenges and redirects everything else to https"
 authors = ["kpcyrd <git@rxv.cc>"]
 license = "GPL-3.0"
