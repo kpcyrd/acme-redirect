@@ -35,6 +35,12 @@ Your certificate is located here:
 
 # Installation
 
+## Arch Linux
+
+```bash
+pacman -S acme-redirect
+```
+
 ## Build from source
 
 ```bash
