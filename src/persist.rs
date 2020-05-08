@@ -2,9 +2,10 @@ use crate::cert::CertInfo;
 use crate::config::Config;
 use crate::errors::*;
 use acme_micro::Certificate;
+use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fs;
-use std::fs::File;
-use std::fs::OpenOptions;
+use std::fs::{DirEntry, File, OpenOptions};
 use std::io::prelude::*;
 use std::io::ErrorKind;
 use std::os::unix::fs::symlink;
@@ -16,11 +17,6 @@ use std::path::PathBuf;
 pub struct FilePersist {
     path: PathBuf,
 }
-
-// TODO: there should be a folder with all the certs
-// TODO: there should be a symlink to the current cert
-// TODO: there should be a way to get the current cert for a given name
-// TODO: there should be a way to get the expire date of that cert
 
 fn create(path: &Path, mode: u32) -> Result<File> {
     OpenOptions::new()
@@ -51,6 +47,57 @@ impl FilePersist {
         } else {
             Ok(None)
         }
+    }
+
+    fn certstore_entry(entry: &DirEntry) -> Result<(PathBuf, String, CertInfo)> {
+        let cert_path = entry.path().join("fullchain");
+
+        let name = entry.file_name().into_string()
+            .map_err(|_| anyhow!("Filename contains invalid utf8"))?;
+
+        let buf = fs::read(cert_path)?;
+        let cert = CertInfo::from_pem(&buf)?;
+
+        Ok((
+            entry.path(),
+            name,
+            cert,
+        ))
+    }
+
+    pub fn list_certs(&self) -> Result<Vec<(PathBuf, String, CertInfo)>> {
+        let path = self.path.join("certs");
+
+        let mut certs = Vec::new();
+        for entry in fs::read_dir(path)? {
+            let entry = entry?;
+            match Self::certstore_entry(&entry) {
+                Ok(entry) => certs.push(entry),
+                Err(err) => error!("Failed to read {:?}: {:#}", entry.path(), err),
+            }
+        }
+
+        Ok(certs)
+    }
+
+    pub fn list_live_certs(&self) -> Result<HashMap<String, String>> {
+        let path = self.path.join("live");
+
+        let mut live = HashMap::new();
+        for entry in fs::read_dir(path)? {
+            let entry = entry?;
+            let path = entry.path();
+
+            if let Some(Some(name)) = path.file_name().map(OsStr::to_str) {
+                if let Ok(link) = fs::read_link(entry.path()) {
+                    if let Some(Some(version)) = link.file_name().map(OsStr::to_str) {
+                        live.insert(version.to_string(), name.to_string());
+                    }
+                }
+            }
+        }
+
+        Ok(live)
     }
 
     pub fn load_cert_info(&self, name: &str) -> Result<Option<CertInfo>> {

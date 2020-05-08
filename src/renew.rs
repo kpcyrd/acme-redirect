@@ -1,3 +1,4 @@
+use std::fs;
 use std::process::Command;
 use crate::args::RenewArgs;
 use crate::config::CertConfig;
@@ -75,8 +76,32 @@ fn renew_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &C
     Ok(())
 }
 
-fn cleanup_certs(_dry_run: bool) -> Result<()> {
-    // debug!("TODO: cleanup old certs");
+fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
+    let live = persist.list_live_certs()?;
+    for (version, name) in &live {
+        debug!("cert used in live: {:?} -> {:?}", name, version);
+    }
+
+    for (path, name, cert) in persist.list_certs()? {
+        if cert.days_left() >= 0 {
+            debug!("cert {:?} is still valid, keeping it around", name);
+        } else {
+            if live.contains_key(&name) {
+                debug!("cert {:?} is expired by still live, skipping", name);
+                continue;
+            }
+
+            if dry_run {
+                debug!("cert {:?} is expired, would delete but dry run is enabled", name);
+            } else {
+                info!("cert {:?} is expired, deleting...", name);
+                if let Err(err) = fs::remove_dir_all(&path) {
+                    error!("Failed to delete {:?}: {:#}", name, err);
+                }
+            }
+        }
+    }
+
     Ok(())
 }
 
@@ -89,7 +114,7 @@ pub fn run(config: Config, args: RenewArgs) -> Result<()> {
         }
     }
 
-    cleanup_certs(args.dry_run)?;
+    cleanup_certs(&persist, args.dry_run)?;
 
     Ok(())
 }
