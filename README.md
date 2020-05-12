@@ -47,6 +47,7 @@ Install [cargo-deb](https://github.com/mmstick/cargo-deb) and afterwards build
 a package like this:
 
 ```bash
+sudo apt install build-essential pkg-config libssl-dev
 git clone https://github.com/kpcyrd/acme-redirect.git
 cd acme-redirect/
 cargo deb
