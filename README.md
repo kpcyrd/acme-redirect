@@ -62,19 +62,18 @@ git clone https://github.com/kpcyrd/acme-redirect.git
 cd acme-redirect/
 cargo build --release
 
-install -Dm 755 -t "/usr/local/bin" \
+install -Dm 755 -t /usr/local/bin \
     target/release/acme-redirect
 
-install -dm 755 "/etc/acme-redirect.d"
-install -Dm 644 -t "/etc" \
-    contrib/confs/acme-redirect.conf
+install -Dm 644 contrib/confs/acme-redirect.conf -t /etc
+install -Dm 644 contrib/confs/certs.d/example.com.conf /etc/acme-redirect.d/example.com.conf.sample
 
-install -Dm 644 -t "/etc/systemd/system" \
+install -Dm 644 -t /etc/systemd/system \
     contrib/systemd/acme-redirect-renew.service \
     contrib/systemd/acme-redirect-renew.timer \
     contrib/systemd/acme-redirect.service
-install -Dm 644 contrib/systemd/acme-redirect.sysusers "/etc/sysusers.d/acme-redirect.conf"
-install -Dm 644 contrib/systemd/acme-redirect.tmpfiles "/etc/tmpfiles.d/acme-redirect.conf"
+install -Dm 644 contrib/systemd/acme-redirect.sysusers /etc/sysusers.d/acme-redirect.conf
+install -Dm 644 contrib/systemd/acme-redirect.tmpfiles /etc/tmpfiles.d/acme-redirect.conf
 
 sudo systemd-sysusers
 sudo systemd-tmpfiles --create
