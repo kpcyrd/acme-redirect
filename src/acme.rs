@@ -16,7 +16,11 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     let url = DirectoryUrl::Other(&req.acme_url);
     let dir = Directory::from_url(url)?;
 
-    let contact = vec![];
+    let contact = if let Some(email) = req.account_email {
+        vec![format!("mailto:{}", email)]
+    } else {
+        vec![]
+    };
 
     let acc = if let Some(acc) = persist.load_acc_privkey()? {
         info!("authenticating with existing account");
