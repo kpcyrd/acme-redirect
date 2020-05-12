@@ -9,6 +9,7 @@ const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
 #[derive(Debug, StructOpt)]
 #[structopt(global_settings = &[AppSettings::ColoredHelp])]
 pub struct Args {
+    /// Verbose logging output (Can be set multiple times)
     #[structopt(short, long, global = true, parse(from_occurrences))]
     pub verbose: u8,
     #[structopt(
@@ -68,21 +69,21 @@ pub enum Cmd {
 
 #[derive(Debug, Clone, StructOpt)]
 pub struct DaemonArgs {
-    #[structopt(long = "chroot")]
-    pub chroot: Option<String>,
-    #[structopt(long = "user")]
-    pub user: Option<String>,
+    /// The address to listen on
     #[structopt(short = "B", long, default_value = "[::]:80", env = "ACME_BIND_ADDR")]
     pub bind_addr: String,
 }
 
 #[derive(Debug, Clone, StructOpt)]
 pub struct RenewArgs {
+    /// Do not actually do anything, just show what would happen
     #[structopt(short = "n", long)]
     pub dry_run: bool,
+    /// Renew certificates even if they are not about to expire
     #[structopt(long)]
     pub force_renew: bool,
     // TODO: add code to check if the cert actually fulfills the dns_names in the config
+    /// Do not execute the configured exec commands
     #[structopt(long)]
     pub skip_restarts: bool,
     /// Don't clean up old certs that are not live anymore
