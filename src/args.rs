@@ -89,6 +89,8 @@ pub struct RenewArgs {
     /// Don't clean up old certs that are not live anymore
     #[structopt(long)]
     pub skip_cleanup: bool,
+    /// Only renew specific certs
+    pub certs: Vec<String>,
 }
 
 #[derive(Debug, Clone, StructOpt)]

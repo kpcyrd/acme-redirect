@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs;
 use std::process::Command;
 use crate::args::RenewArgs;
@@ -77,12 +78,15 @@ fn renew_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &C
 }
 
 fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
-    let live = persist.list_live_certs()?;
+    let live = persist.list_live_certs()
+        .context("Failed to list live certificates")?;
     for (version, name) in &live {
         debug!("cert used in live: {:?} -> {:?}", name, version);
     }
 
-    for (path, name, cert) in persist.list_certs()? {
+    let cert_list = persist.list_certs()
+        .context("Failed to list certificates")?;
+    for (path, name, cert) in cert_list {
         if cert.days_left() >= 0 {
             debug!("cert {:?} is still valid, keeping it around", name);
         } else {
@@ -105,16 +109,20 @@ fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn run(config: Config, args: RenewArgs) -> Result<()> {
+pub fn run(config: Config, mut args: RenewArgs) -> Result<()> {
     let persist = FilePersist::new(&config);
 
+    let filter = args.certs.drain(..).collect::<HashSet<_>>();
     for cert in &config.certs {
-        if let Err(err) = renew_cert(&args, &config, &persist, &cert) {
-            error!("Failed to renew: {:#}", err);
+        if filter.is_empty() || filter.contains(&cert.name) {
+            if let Err(err) = renew_cert(&args, &config, &persist, &cert) {
+                error!("Failed to renew: {:#}", err);
+            }
         }
     }
 
-    cleanup_certs(&persist, args.dry_run)?;
+    cleanup_certs(&persist, args.dry_run)
+        .context("Failed to cleanup old certs")?;
 
     Ok(())
 }

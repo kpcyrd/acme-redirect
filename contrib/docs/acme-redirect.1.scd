@@ -50,6 +50,10 @@ trigger a certificate reload.
 *--skip-restarts*
 	Do not execute the configured *exec* commands.
 
+*<certs ...>*
+	Only renew specific certs. If no certificate is selected explicitly, renew
+	all certificates.
+
 *acme-redirect renew*
 
 # STATUS

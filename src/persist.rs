@@ -69,11 +69,13 @@ impl FilePersist {
         let path = self.path.join("certs");
 
         let mut certs = Vec::new();
-        for entry in fs::read_dir(path)? {
-            let entry = entry?;
-            match Self::certstore_entry(&entry) {
-                Ok(entry) => certs.push(entry),
-                Err(err) => error!("Failed to read {:?}: {:#}", entry.path(), err),
+        if path.exists() {
+            for entry in fs::read_dir(path)? {
+                let entry = entry?;
+                match Self::certstore_entry(&entry) {
+                    Ok(entry) => certs.push(entry),
+                    Err(err) => error!("Failed to read {:?}: {:#}", entry.path(), err),
+                }
             }
         }
 
@@ -84,14 +86,16 @@ impl FilePersist {
         let path = self.path.join("live");
 
         let mut live = HashMap::new();
-        for entry in fs::read_dir(path)? {
-            let entry = entry?;
-            let path = entry.path();
+        if path.exists() {
+            for entry in fs::read_dir(path)? {
+                let entry = entry?;
+                let path = entry.path();
 
-            if let Some(Some(name)) = path.file_name().map(OsStr::to_str) {
-                if let Ok(link) = fs::read_link(entry.path()) {
-                    if let Some(Some(version)) = link.file_name().map(OsStr::to_str) {
-                        live.insert(version.to_string(), name.to_string());
+                if let Some(Some(name)) = path.file_name().map(OsStr::to_str) {
+                    if let Ok(link) = fs::read_link(entry.path()) {
+                        if let Some(Some(version)) = link.file_name().map(OsStr::to_str) {
+                            live.insert(version.to_string(), name.to_string());
+                        }
                     }
                 }
             }
