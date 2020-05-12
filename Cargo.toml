@@ -8,6 +8,30 @@ repository = "https://github.com/kpcyrd/acme-redirect"
 readme = "README.md"
 edition = "2018"
 
+[package.metadata.deb]
+extended-description = """\
+acme-redirect is a tiny http server that implements the ACME (Automated
+Certificate Management Environment) protocol and redirects everything else to
+https. It can run directly on port 80 and supports automatic issuance and renew
+of certificates out of the box with minimal configuration."""
+section = "web"
+priority = "optional"
+build-depends = "pkg-config, libssl-dev"
+maintainer-scripts = "debian"
+assets = [
+    ["target/release/acme-redirect", "usr/bin/", "755"],
+
+    ["contrib/confs/acme-redirect.conf", "etc/", "644"],
+    ["contrib/confs/certs.d/example.com.conf", "etc/acme-redirect.d/example.com.conf.sample", "644"],
+
+    ["contrib/systemd/acme-redirect-renew.service", "usr/lib/systemd/system/", "644"],
+    ["contrib/systemd/acme-redirect-renew.timer", "usr/lib/systemd/system/", "644"],
+    ["contrib/systemd/acme-redirect.service", "usr/lib/systemd/system/", "644"],
+
+    ["contrib/systemd/acme-redirect.sysusers", "usr/lib/sysusers.d/acme-redirect.conf", "644"],
+    ["contrib/systemd/acme-redirect.tmpfiles", "usr/lib/tmpfiles.d/acme-redirect.conf", "644"],
+]
+
 [dependencies]
 acme-micro = "0.8"
 structopt = "0.3.14"

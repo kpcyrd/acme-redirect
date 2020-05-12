@@ -41,6 +41,20 @@ Your certificate is located here:
 pacman -S acme-redirect
 ```
 
+## Debian based
+
+Install [cargo-deb](https://github.com/mmstick/cargo-deb) and afterwards build
+a package like this:
+
+```bash
+git clone https://github.com/kpcyrd/acme-redirect.git
+cd acme-redirect/
+cargo deb
+ls -la target/debian/acme-redirect_*.deb
+```
+
+The resulting package can be installed with `dpkg -i`.
+
 ## Build from source
 
 ```bash
