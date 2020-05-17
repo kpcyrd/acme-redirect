@@ -11,4 +11,4 @@ RUN apk add --no-cache libgcc openssl
 COPY --from=0 \
     /usr/src/acme-redirect/target/release/acme-redirect \
     /usr/local/bin/
-CMD ["acme-redirect"]
+ENTRYPOINT ["acme-redirect"]

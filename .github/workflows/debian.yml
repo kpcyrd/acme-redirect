@@ -1,0 +1,30 @@
+name: Debian pkg
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install cargo-deb
+      run: cargo install cargo-deb
+
+    - uses: actions/checkout@v2
+
+    - name: Build package
+      run: cargo deb
+
+    - name: Rename package
+      run: mv target/debian/acme-redirect*.deb acme-redirect.deb
+
+    - name: Archive package
+      uses: actions/upload-artifact@v1
+      with:
+        name: acme-redirect-debian-amd64
+        path: acme-redirect.deb
