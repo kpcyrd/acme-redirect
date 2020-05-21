@@ -17,6 +17,11 @@ exec = [
 ]
 ```
 
+Start the acme-redirect daemon:
+```bash
+systemctl enable --now acme-redirect
+```
+
 Request certificates:
 ```bash
 acme-redirect renew
@@ -43,18 +48,15 @@ pacman -S acme-redirect
 
 ## Debian based
 
-Install [cargo-deb](https://github.com/mmstick/cargo-deb) and afterwards build
-a package like this:
+Currently supported: buster
 
 ```bash
-sudo apt install build-essential pkg-config libssl-dev
-git clone https://github.com/kpcyrd/acme-redirect.git
-cd acme-redirect/
-cargo deb
-ls -la target/debian/acme-redirect_*.deb
+apt install debian-keyring
+gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add -
+apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc
+echo deb https://apt.vulns.sexy $(lsb_release -cs) main >> /etc/apt/sources.list
+apt update && apt install acme-redirect
 ```
-
-The resulting package can be installed with `dpkg -i`.
 
 ## Build from source
 
@@ -79,6 +81,10 @@ install -Dm 644 contrib/systemd/acme-redirect.tmpfiles /etc/tmpfiles.d/acme-redi
 sudo systemd-sysusers
 sudo systemd-tmpfiles --create
 ```
+
+# Status
+
+I'm using this in production since summer 2020.
 
 # Development
 
