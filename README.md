@@ -99,6 +99,20 @@ cargo run -- status
 cargo run -- daemon -B '[::]:8080' -v
 ```
 
+# Boxxy
+
+acme-redirect uses setuid and chroot to drop privileges before accepting
+requests. This can be inspected with [boxxy][1].
+
+```bash
+mkdir -vp tmp/web
+sudo chown root. tmp/web
+cargo build --examples
+(cd tmp/web && sudo ../../target/debug/examples/boxxy)
+```
+
+[1]: https://github.com/kpcyrd/boxxy-rs
+
 # License
 
 GPLv3+

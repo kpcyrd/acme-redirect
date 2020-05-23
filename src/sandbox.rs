@@ -36,7 +36,7 @@ fn drop_caps() -> Result<()> {
     Ok(())
 }
 
-pub fn drop(args: &DaemonArgs) -> Result<()> {
+pub fn init(args: &DaemonArgs) -> Result<()> {
     let user = if let Some(name) = &args.user {
         debug!("Resolving uid for {:?}", name);
         let user = users::get_user_by_name(&name)

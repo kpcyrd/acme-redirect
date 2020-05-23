@@ -1,18 +1,9 @@
-mod acme;
-mod args;
-mod cert;
-mod chall;
-mod config;
-mod daemon;
-mod errors;
-mod http_responses;
-mod persist;
-mod renew;
-mod sandbox;
-mod status;
-
-use crate::args::{Args, Cmd, SubCommand};
-use crate::errors::*;
+use acme_redirect::args::{self, Args, Cmd, SubCommand};
+use acme_redirect::config;
+use acme_redirect::daemon;
+use acme_redirect::errors::*;
+use acme_redirect::renew;
+use acme_redirect::status;
 use env_logger::Env;
 use structopt::StructOpt;
 
