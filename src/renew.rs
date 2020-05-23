@@ -1,15 +1,20 @@
+use crate::acme;
+use crate::args::RenewArgs;
+use crate::chall::Challenge;
+use crate::config::CertConfig;
+use crate::config::Config;
+use crate::errors::*;
+use crate::persist::FilePersist;
 use std::collections::HashSet;
 use std::fs;
 use std::process::Command;
-use crate::args::RenewArgs;
-use crate::config::CertConfig;
-use crate::config::Config;
-use crate::acme;
-use crate::chall::Challenge;
-use crate::errors::*;
-use crate::persist::FilePersist;
 
-fn should_request_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &CertConfig) -> Result<bool> {
+fn should_request_cert(
+    args: &RenewArgs,
+    config: &Config,
+    persist: &FilePersist,
+    cert: &CertConfig,
+) -> Result<bool> {
     if args.force_renew {
         info!("{:?}: force renewing", cert.name);
         Ok(true)
@@ -49,7 +54,12 @@ fn execute_hooks(hooks: &[String], dry_run: bool) -> Result<()> {
     Ok(())
 }
 
-fn renew_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &CertConfig) -> Result<()> {
+fn renew_cert(
+    args: &RenewArgs,
+    config: &Config,
+    persist: &FilePersist,
+    cert: &CertConfig,
+) -> Result<()> {
     let mut challenge = Challenge::new(&config);
     let request_cert = should_request_cert(&args, &config, &persist, &cert)?;
 
@@ -78,13 +88,15 @@ fn renew_cert(args: &RenewArgs, config: &Config, persist: &FilePersist, cert: &C
 }
 
 fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
-    let live = persist.list_live_certs()
+    let live = persist
+        .list_live_certs()
         .context("Failed to list live certificates")?;
     for (version, name) in &live {
         debug!("cert used in live: {:?} -> {:?}", name, version);
     }
 
-    let cert_list = persist.list_certs()
+    let cert_list = persist
+        .list_certs()
         .context("Failed to list certificates")?;
     for (path, name, cert) in cert_list {
         if cert.days_left() >= 0 {
@@ -96,7 +108,10 @@ fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
             }
 
             if dry_run {
-                debug!("cert {:?} is expired, would delete but dry run is enabled", name);
+                debug!(
+                    "cert {:?} is expired, would delete but dry run is enabled",
+                    name
+                );
             } else {
                 info!("cert {:?} is expired, deleting...", name);
                 if let Err(err) = fs::remove_dir_all(&path) {
@@ -121,8 +136,7 @@ pub fn run(config: Config, mut args: RenewArgs) -> Result<()> {
         }
     }
 
-    cleanup_certs(&persist, args.dry_run)
-        .context("Failed to cleanup old certs")?;
+    cleanup_certs(&persist, args.dry_run).context("Failed to cleanup old certs")?;
 
     Ok(())
 }

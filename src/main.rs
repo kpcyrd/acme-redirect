@@ -2,15 +2,15 @@ mod acme;
 mod args;
 mod cert;
 mod chall;
-mod renew;
 mod config;
 mod daemon;
 mod errors;
-mod status;
 mod http_responses;
 mod persist;
+mod renew;
+mod status;
 
-use crate::args::{Args, SubCommand, Cmd};
+use crate::args::{Args, Cmd, SubCommand};
 use crate::errors::*;
 use env_logger::Env;
 use structopt::StructOpt;
@@ -36,7 +36,7 @@ fn main() -> Result<()> {
                 Cmd::Status => status::run(config)?,
                 Cmd::Renew(args) => renew::run(config, args)?,
             }
-        },
+        }
         SubCommand::Completions(completions) => args::gen_completions(&completions)?,
     }
 
