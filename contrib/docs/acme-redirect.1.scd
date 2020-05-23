@@ -31,6 +31,12 @@ Runs the http daemon.
 *-B <bind-addr>, --bind-addr <bind-addr>*
 	The address to listen on. Default is *[::]:80*.
 
+*--chroot*
+	Chroot into the challenge directory.
+
+*--user <user>*
+	Drop from root to this user.
+
 *acme-redirect daemon*
 
 # RENEW

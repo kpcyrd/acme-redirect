@@ -8,6 +8,7 @@ mod errors;
 mod http_responses;
 mod persist;
 mod renew;
+mod sandbox;
 mod status;
 
 use crate::args::{Args, Cmd, SubCommand};

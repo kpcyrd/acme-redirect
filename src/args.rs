@@ -72,6 +72,12 @@ pub struct DaemonArgs {
     /// The address to listen on
     #[structopt(short = "B", long, default_value = "[::]:80", env = "ACME_BIND_ADDR")]
     pub bind_addr: String,
+    /// Drop from root to this user
+    #[structopt(long)]
+    pub user: Option<String>,
+    /// Chroot into the challenge directory
+    #[structopt(long)]
+    pub chroot: bool,
 }
 
 #[derive(Debug, Clone, StructOpt)]
