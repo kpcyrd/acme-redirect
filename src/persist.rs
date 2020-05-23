@@ -52,17 +52,15 @@ impl FilePersist {
     fn certstore_entry(entry: &DirEntry) -> Result<(PathBuf, String, CertInfo)> {
         let cert_path = entry.path().join("fullchain");
 
-        let name = entry.file_name().into_string()
+        let name = entry
+            .file_name()
+            .into_string()
             .map_err(|_| anyhow!("Filename contains invalid utf8"))?;
 
         let buf = fs::read(cert_path)?;
         let cert = CertInfo::from_pem(&buf)?;
 
-        Ok((
-            entry.path(),
-            name,
-            cert,
-        ))
+        Ok((entry.path(), name, cert))
     }
 
     pub fn list_certs(&self) -> Result<Vec<(PathBuf, String, CertInfo)>> {
@@ -138,7 +136,8 @@ impl FilePersist {
 
         let path = self.path.join("certs");
         debug!("creating folder: {:?}", path);
-        fs::create_dir_all(&path).with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+        fs::create_dir_all(&path)
+            .with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
 
         let mut i = 0;
         let path = loop {
