@@ -14,7 +14,10 @@ pub fn check(name: &str, token: &str) -> Result<()> {
 
     let status = r.status();
     if status != 200 {
-        bail!("response status code is wrong (expected 200, got {})", status);
+        bail!(
+            "response status code is wrong (expected 200, got {})",
+            status
+        );
     }
 
     let body = r.into_string()?;
@@ -33,7 +36,10 @@ pub fn run(config: Config, mut args: CheckArgs) -> Result<()> {
     for cert in config.filter_certs(&filter) {
         for dns_name in &cert.dns_names {
             if let Err(err) = check(dns_name, &token) {
-                error!("Check failed ({:?} -> {:?}): {:#}", cert.name, dns_name, err);
+                error!(
+                    "Check failed ({:?} -> {:?}): {:#}",
+                    cert.name, dns_name, err
+                );
             } else {
                 info!("Verified {:?} -> {:?}: OK", cert.name, dns_name);
             }

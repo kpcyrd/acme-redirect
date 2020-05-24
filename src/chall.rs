@@ -1,6 +1,6 @@
 use crate::config::Config;
-use rand::Rng;
 use crate::errors::*;
+use rand::Rng;
 use std::fs;
 use std::path::PathBuf;
 
@@ -32,8 +32,7 @@ impl Challenge {
 
         let path = self.path.join(token);
         debug!("Writing challenge proof to {:?}", path);
-        fs::write(&path, proof)
-            .context("Failed to write challenge proof")?;
+        fs::write(&path, proof).context("Failed to write challenge proof")?;
 
         self.written.push(path);
 

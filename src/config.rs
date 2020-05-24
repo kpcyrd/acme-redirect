@@ -1,8 +1,8 @@
 use crate::args::Args;
-use std::collections::HashSet;
 use crate::errors::*;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
+use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::Path;
@@ -79,10 +79,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn filter_certs<'a>(&'a self, filter: &'a HashSet<String>) -> impl Iterator<Item = &'a CertConfig> {
-        self.certs.iter().filter(move |cert| {
-            filter.is_empty() || filter.contains(&cert.name)
-        })
+    pub fn filter_certs<'a>(
+        &'a self,
+        filter: &'a HashSet<String>,
+    ) -> impl Iterator<Item = &'a CertConfig> {
+        self.certs
+            .iter()
+            .filter(move |cert| filter.is_empty() || filter.contains(&cert.name))
     }
 }
 

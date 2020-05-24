@@ -229,7 +229,8 @@ mod tests {
 
     #[test]
     fn test_split_one() {
-        let (chain, cert) = split_chain("-----BEGIN CERTIFICATE-----
+        let (chain, cert) = split_chain(
+            "-----BEGIN CERTIFICATE-----
 MIIE1DCCA7ygAwIBAgISA22Gkmt31e1mitao+ENL+sr3MA0GCSqGSIb3DQEBCwUA
 MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD
 ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MjgyMzMxMjdaFw0y
@@ -257,9 +258,13 @@ nXq0uZRfAm2kmQ64WusLvkvgpS61J0m70JI2mXdr+epeXwKdWcmnZJ4CCOiSYdv/
 AxdDRttRGfpNyAxuMiyCccwXW2rNfc7EHQ7Myb7f3eE9cE6wLu/JLCCUotgafi08
 aJ6TSPxS0YlSBhKYNbOUI7R8ZbjAJe/vI1IcYYhMaIW0kAzo4nxEmg==
 -----END CERTIFICATE-----
-").unwrap();
+",
+        )
+        .unwrap();
         assert_eq!(chain, "");
-        assert_eq!(cert, "-----BEGIN CERTIFICATE-----\r\n\
+        assert_eq!(
+            cert,
+            "-----BEGIN CERTIFICATE-----\r\n\
 MIIE1DCCA7ygAwIBAgISA22Gkmt31e1mitao+ENL+sr3MA0GCSqGSIb3DQEBCwUA\r\n\
 MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD\r\n\
 ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MjgyMzMxMjdaFw0y\r\n\
@@ -286,12 +291,14 @@ l7VHipzyxsPctUQK8pPRfOR8l2iMBj9+qpKmLx6v/BRN5ycj2giMuw6pbIoB3n6T\r\n\
 nXq0uZRfAm2kmQ64WusLvkvgpS61J0m70JI2mXdr+epeXwKdWcmnZJ4CCOiSYdv/\r\n\
 AxdDRttRGfpNyAxuMiyCccwXW2rNfc7EHQ7Myb7f3eE9cE6wLu/JLCCUotgafi08\r\n\
 aJ6TSPxS0YlSBhKYNbOUI7R8ZbjAJe/vI1IcYYhMaIW0kAzo4nxEmg==\r\n\
------END CERTIFICATE-----\r\n");
+-----END CERTIFICATE-----\r\n"
+        );
     }
 
     #[test]
     fn test_split_two() {
-        let (chain, cert) = split_chain("-----BEGIN CERTIFICATE-----
+        let (chain, cert) = split_chain(
+            "-----BEGIN CERTIFICATE-----
 MIIE1DCCA7ygAwIBAgISA22Gkmt31e1mitao+ENL+sr3MA0GCSqGSIb3DQEBCwUA
 MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD
 ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MjgyMzMxMjdaFw0y
@@ -347,8 +354,12 @@ X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG
 PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6
 KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==
 -----END CERTIFICATE-----
-").unwrap();
-        assert_eq!(chain, "-----BEGIN CERTIFICATE-----\r\n\
+",
+        )
+        .unwrap();
+        assert_eq!(
+            chain,
+            "-----BEGIN CERTIFICATE-----\r\n\
 MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\r\n\
 MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\r\n\
 DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\r\n\
@@ -374,8 +385,11 @@ wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu\r\n\
 X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG\r\n\
 PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6\r\n\
 KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\r\n\
------END CERTIFICATE-----\r\n");
-        assert_eq!(cert, "-----BEGIN CERTIFICATE-----\r\n\
+-----END CERTIFICATE-----\r\n"
+        );
+        assert_eq!(
+            cert,
+            "-----BEGIN CERTIFICATE-----\r\n\
 MIIE1DCCA7ygAwIBAgISA22Gkmt31e1mitao+ENL+sr3MA0GCSqGSIb3DQEBCwUA\r\n\
 MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD\r\n\
 ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MjgyMzMxMjdaFw0y\r\n\
@@ -402,12 +416,14 @@ l7VHipzyxsPctUQK8pPRfOR8l2iMBj9+qpKmLx6v/BRN5ycj2giMuw6pbIoB3n6T\r\n\
 nXq0uZRfAm2kmQ64WusLvkvgpS61J0m70JI2mXdr+epeXwKdWcmnZJ4CCOiSYdv/\r\n\
 AxdDRttRGfpNyAxuMiyCccwXW2rNfc7EHQ7Myb7f3eE9cE6wLu/JLCCUotgafi08\r\n\
 aJ6TSPxS0YlSBhKYNbOUI7R8ZbjAJe/vI1IcYYhMaIW0kAzo4nxEmg==\r\n\
------END CERTIFICATE-----\r\n");
+-----END CERTIFICATE-----\r\n"
+        );
     }
 
     #[test]
     fn test_split_three() {
-        let (chain, cert) = split_chain("-----BEGIN CERTIFICATE-----
+        let (chain, cert) = split_chain(
+            "-----BEGIN CERTIFICATE-----
 MIIE1DCCA7ygAwIBAgISA22Gkmt31e1mitao+ENL+sr3MA0GCSqGSIb3DQEBCwUA
 MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD
 ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MjgyMzMxMjdaFw0y
@@ -491,9 +507,13 @@ X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG
 PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6
 KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==
 -----END CERTIFICATE-----
-").unwrap();
+",
+        )
+        .unwrap();
 
-        assert_eq!(chain, "-----BEGIN CERTIFICATE-----\r\n\
+        assert_eq!(
+            chain,
+            "-----BEGIN CERTIFICATE-----\r\n\
 MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\r\n\
 MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\r\n\
 DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\r\n\
@@ -547,8 +567,11 @@ wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu\r\n\
 X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG\r\n\
 PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6\r\n\
 KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\r\n\
------END CERTIFICATE-----\r\n");
-        assert_eq!(cert, "-----BEGIN CERTIFICATE-----\r\n\
+-----END CERTIFICATE-----\r\n"
+        );
+        assert_eq!(
+            cert,
+            "-----BEGIN CERTIFICATE-----\r\n\
 MIIE1DCCA7ygAwIBAgISA22Gkmt31e1mitao+ENL+sr3MA0GCSqGSIb3DQEBCwUA\r\n\
 MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD\r\n\
 ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MjgyMzMxMjdaFw0y\r\n\
@@ -575,6 +598,7 @@ l7VHipzyxsPctUQK8pPRfOR8l2iMBj9+qpKmLx6v/BRN5ycj2giMuw6pbIoB3n6T\r\n\
 nXq0uZRfAm2kmQ64WusLvkvgpS61J0m70JI2mXdr+epeXwKdWcmnZJ4CCOiSYdv/\r\n\
 AxdDRttRGfpNyAxuMiyCccwXW2rNfc7EHQ7Myb7f3eE9cE6wLu/JLCCUotgafi08\r\n\
 aJ6TSPxS0YlSBhKYNbOUI7R8ZbjAJe/vI1IcYYhMaIW0kAzo4nxEmg==\r\n\
------END CERTIFICATE-----\r\n");
+-----END CERTIFICATE-----\r\n"
+        );
     }
 }
