@@ -10,11 +10,12 @@ use structopt::StructOpt;
 fn main() -> Result<()> {
     let args = Args::from_args();
 
-    let logging = match args.verbose {
-        0 => "info",
-        1 => "info,acme_redirect=debug",
-        2 => "debug",
-        _ => "debug,acme_redirect=trace",
+    let logging = match (args.quiet, args.verbose) {
+        (true, _) => "warn",
+        (false, 0) => "info",
+        (false, 1) => "info,acme_redirect=debug",
+        (false, 2) => "debug",
+        (false, _) => "debug,acme_redirect=trace",
     };
     env_logger::init_from_env(Env::default().default_filter_or(logging));
 

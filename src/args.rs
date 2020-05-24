@@ -12,6 +12,9 @@ pub struct Args {
     /// Verbose logging output (Can be set multiple times)
     #[structopt(short, long, global = true, parse(from_occurrences))]
     pub verbose: u8,
+    /// Silent output (except errors)
+    #[structopt(short, long, global = true)]
+    pub quiet: bool,
     #[structopt(
         short,
         long,
