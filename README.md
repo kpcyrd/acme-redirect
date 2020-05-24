@@ -1,7 +1,7 @@
 # acme-redirect(1)
 
-A minimal http daemon that answers acme challenges and redirects everything
-else to https.
+A tiny http daemon that answers acme challenges and redirects everything else
+to https.
 
 A minimal configuration looks like this:
 ```toml
@@ -17,25 +17,59 @@ exec = [
 ]
 ```
 
-Start the acme-redirect daemon:
+You don't need to edit anything else. Start the acme-redirect daemon:
 ```bash
 systemctl enable --now acme-redirect
 ```
 
-Request certificates:
+Ensure the service is running correctly and the redirect works as expected.
+Ensure your A and AAAA records point to the right server and check everything
+is working correctly by fetching a random proof from our local daemon.
+```bash
+acme-redirect check
+```
+
+If `OK` is displayed for every name you can request a real certificates:
 ```bash
 acme-redirect renew
 ```
 
-Setup automatic renew:
+If this succeeded you should setup automatic renew:
 ```bash
 systemctl enable --now acme-redirect-renew.timer
 ```
 
-Your certificate is located here:
+The certificate is located here:
 ```
 /var/lib/acme-redirect/live/example.com/live/fullchain
 /var/lib/acme-redirect/live/example.com/live/privkey
+```
+
+A config to use it along with nginx could look like this:
+```
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    ssl_certificate /var/lib/acme-redirect/live/EXAMPLE.COM/live/fullchain;
+    ssl_certificate_key /var/lib/acme-redirect/live/EXAMPLE.COM/live/privkey;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
+    ssl_session_tickets off;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    add_header Strict-Transport-Security "max-age=63072000" always;
+
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /var/lib/acme-redirect/live/EXAMPLE.COM/chain;
+    resolver 127.0.0.1;
+
+    # ...
+}
 ```
 
 # Installation

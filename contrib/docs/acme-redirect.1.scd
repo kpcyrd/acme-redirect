@@ -2,7 +2,7 @@ acme-redirect(1)
 
 # NAME
 
-acme-redirect - Minimal http daemon that answers acme challenges and redirects
+acme-redirect - Tiny http daemon that answers acme challenges and redirects
 everything else to https
 
 # SYNOPSIS
