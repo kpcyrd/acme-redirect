@@ -128,11 +128,9 @@ pub fn run(config: Config, mut args: RenewArgs) -> Result<()> {
     let persist = FilePersist::new(&config);
 
     let filter = args.certs.drain(..).collect::<HashSet<_>>();
-    for cert in &config.certs {
-        if filter.is_empty() || filter.contains(&cert.name) {
-            if let Err(err) = renew_cert(&args, &config, &persist, &cert) {
-                error!("Failed to renew: {:#}", err);
-            }
+    for cert in config.filter_certs(&filter) {
+        if let Err(err) = renew_cert(&args, &config, &persist, &cert) {
+            error!("Failed to renew ({:?}): {:#}", cert.name, err);
         }
     }
 

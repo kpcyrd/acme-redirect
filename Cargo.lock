@@ -32,10 +32,12 @@ dependencies = [
  "log",
  "nix 0.17.0",
  "openssl",
+ "rand",
  "serde",
  "structopt",
  "time 0.1.43",
  "toml",
+ "ureq",
  "users",
 ]
 
