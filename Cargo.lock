@@ -32,6 +32,7 @@ dependencies = [
  "log",
  "nix 0.17.0",
  "openssl",
+ "pem",
  "rand",
  "serde",
  "structopt",
@@ -1643,6 +1644,17 @@ dependencies = [
  "redox_syscall",
  "smallvec 1.4.0",
  "winapi 0.3.8",
+]
+
+[[package]]
+name = "pem"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1581760c757a756a41f0ee3ff01256227bdf64cb752839779b95ffb01c59793"
+dependencies = [
+ "base64 0.11.0",
+ "lazy_static",
+ "regex",
 ]
 
 [[package]]
