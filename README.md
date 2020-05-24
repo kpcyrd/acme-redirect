@@ -89,7 +89,7 @@ I'm using this in production since summer 2020 (northern hemisphere, around May)
 # Development
 
 ```bash
-mkdir tmp
+mkdir -vp tmp/challs
 export ACME_CONFIG="$PWD/contrib/confs/acme-redirect.conf"
 export ACME_CONFIG_DIR="$PWD/contrib/confs/certs.d/"
 export ACME_CHALL_DIR="$PWD/tmp/"
@@ -99,7 +99,7 @@ cargo run -- status
 cargo run -- daemon -B '[::]:8080' -v
 ```
 
-# Boxxy
+# boxxy
 
 acme-redirect uses setuid and chroot to drop privileges before accepting
 requests. This can be inspected with [boxxy][1].

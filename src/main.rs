@@ -1,4 +1,5 @@
 use acme_redirect::args::{self, Args, Cmd, SubCommand};
+use acme_redirect::check;
 use acme_redirect::config;
 use acme_redirect::daemon;
 use acme_redirect::errors::*;
@@ -28,6 +29,7 @@ fn main() -> Result<()> {
                 Cmd::Daemon(args) => daemon::run(config, args)?,
                 Cmd::Status => status::run(config)?,
                 Cmd::Renew(args) => renew::run(config, args)?,
+                Cmd::Check(args) => check::run(config, args)?,
             }
         }
         SubCommand::Completions(completions) => args::gen_completions(&completions)?,

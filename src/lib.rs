@@ -2,6 +2,7 @@ pub mod acme;
 pub mod args;
 pub mod cert;
 pub mod chall;
+pub mod check;
 pub mod config;
 pub mod daemon;
 pub mod errors;

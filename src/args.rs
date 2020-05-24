@@ -68,6 +68,8 @@ pub enum Cmd {
     Status,
     /// Request new certificates if needed
     Renew(RenewArgs),
+    /// Check if the challenges could be completed
+    Check(CheckArgs),
 }
 
 #[derive(Debug, Clone, StructOpt)]
@@ -99,6 +101,12 @@ pub struct RenewArgs {
     #[structopt(long)]
     pub skip_cleanup: bool,
     /// Only renew specific certs
+    pub certs: Vec<String>,
+}
+
+#[derive(Debug, Clone, StructOpt)]
+pub struct CheckArgs {
+    /// Only check specific certs
     pub certs: Vec<String>,
 }
 

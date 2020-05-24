@@ -1,4 +1,5 @@
 use crate::config::Config;
+use rand::Rng;
 use crate::errors::*;
 use std::fs;
 use std::path::PathBuf;
@@ -30,15 +31,34 @@ impl Challenge {
         }
 
         let path = self.path.join(token);
-        fs::write(&path, proof)?;
+        debug!("Writing challenge proof to {:?}", path);
+        fs::write(&path, proof)
+            .context("Failed to write challenge proof")?;
 
         self.written.push(path);
 
         Ok(())
     }
 
+    pub fn random(&mut self) -> Result<String> {
+        const TOKEN_LEN: usize = 16;
+        let charset = VALID_CHARS.as_bytes();
+        let mut rng = rand::thread_rng();
+
+        let random: String = (0..TOKEN_LEN)
+            .map(|_| {
+                let idx = rng.gen_range(0, charset.len());
+                charset[idx] as char
+            })
+            .collect();
+
+        self.write(&random, &random)?;
+        Ok(random)
+    }
+
     pub fn cleanup(&mut self) -> Result<()> {
         for path in self.written.drain(..) {
+            debug!("Deleting old challenge proof: {:?}", path);
             fs::remove_file(path)?;
         }
         Ok(())
