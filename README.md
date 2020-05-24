@@ -84,7 +84,7 @@ sudo systemd-tmpfiles --create
 
 # Status
 
-I'm using this in production since summer 2020.
+I'm using this in production since summer 2020 (northern hemisphere, around May).
 
 # Development
 
@@ -98,6 +98,20 @@ export ACME_DATA_DIR="$PWD/tmp/"
 cargo run -- status
 cargo run -- daemon -B '[::]:8080' -v
 ```
+
+# Boxxy
+
+acme-redirect uses setuid and chroot to drop privileges before accepting
+requests. This can be inspected with [boxxy][1].
+
+```bash
+mkdir -vp tmp/web
+sudo chown root. tmp/web
+cargo build --examples
+(cd tmp/web && sudo ../../target/debug/examples/boxxy)
+```
+
+[1]: https://github.com/kpcyrd/boxxy-rs
 
 # License
 

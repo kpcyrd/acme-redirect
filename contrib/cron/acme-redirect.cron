@@ -1,0 +1,7 @@
+#!/bin/sh
+/usr/bin/acme-redirect renew -q
+EXITVALUE=$?
+if [ $EXITVALUE != 0 ]; then
+    /usr/bin/logger -t acme-redirect "ALERT exited abnormally with [$EXITVALUE]"
+fi
+exit 0

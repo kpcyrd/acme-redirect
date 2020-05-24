@@ -2,11 +2,14 @@ use crate::args::DaemonArgs;
 use crate::chall;
 use crate::config::Config;
 use crate::errors::*;
-use crate::http_responses::REDIRECT;
 use crate::http_responses::*;
+use crate::sandbox;
 use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
 use actix_web::{middleware, App, HttpServer};
+use std::env;
 use std::fs;
+use std::net::TcpListener;
+use std::path::Path;
 
 fn get_host(req: &HttpRequest) -> Option<&str> {
     if let Some(host) = req.headers().get("Host") {
@@ -55,11 +58,7 @@ async fn redirect(req: HttpRequest) -> impl Responder {
 }
 
 #[get("/.well-known/acme-challenge/{chall}")]
-async fn acme(
-    token: web::Path<String>,
-    data: web::Data<Config>,
-    req: HttpRequest,
-) -> impl Responder {
+async fn acme(token: web::Path<String>, req: HttpRequest) -> impl Responder {
     debug!("REQ: {:?}", req);
     info!("acme: {:?}", token);
 
@@ -67,7 +66,7 @@ async fn acme(
         return bad_request();
     }
 
-    let path = data.chall_dir.join(token.as_ref());
+    let path = Path::new("challs").join(token.as_ref());
     debug!("Reading challenge proof: {:?}", path);
     if let Ok(proof) = fs::read(path) {
         HttpResponse::Ok().body(proof)
@@ -77,19 +76,25 @@ async fn acme(
 }
 
 #[actix_rt::main]
-pub async fn run(config: Config, args: DaemonArgs) -> Result<()> {
+pub async fn spawn(socket: TcpListener) -> Result<()> {
     HttpServer::new(move || {
         App::new()
-            .data(config.clone())
             // enable logger
             .wrap(middleware::Logger::default())
             .service(acme)
             .service(redirect)
     })
-    .bind(&args.bind_addr)
+    .listen(socket)
     .context("Failed to bind socket")?
     .run()
     .await
     .context("Failed to start http daemon")?;
     Ok(())
+}
+
+pub fn run(config: Config, args: DaemonArgs) -> Result<()> {
+    env::set_current_dir(&config.chall_dir)?;
+    let socket = TcpListener::bind(&args.bind_addr).context("Failed to bind socket")?;
+    sandbox::init(&args).context("Failed to drop privileges")?;
+    spawn(socket)
 }

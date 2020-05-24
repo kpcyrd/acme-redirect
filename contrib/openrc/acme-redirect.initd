@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+
+name=$RC_SVCNAME
+command="/usr/bin/acme-redirect"
+command_args="daemon --chroot --user acme-redirect"
+start_stop_daemon_args='--chdir /run/acme-redirect'
+pidfile="/run/$RC_SVCNAME.pid"
+command_background="yes"
+
+depend() {
+	need net
+	after firewall
+}
+
+start_pre() {
+	checkpath --directory --owner root:acme-redirect --mode 0750 \
+		/run/acme-redirect
+	checkpath --directory --owner acme-redirect:acme-redirect --mode 0770 \
+		/run/acme-redirect/challs /var/lib/acme-redirect
+}

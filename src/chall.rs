@@ -19,7 +19,7 @@ impl Challenge {
     pub fn new(config: &Config) -> Challenge {
         // TODO: consider creating the directory
         Challenge {
-            path: config.chall_dir.clone(),
+            path: config.chall_dir.join("challs"),
             written: Vec::new(),
         }
     }
