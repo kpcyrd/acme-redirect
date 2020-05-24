@@ -2,9 +2,17 @@ use crate::config::Config;
 use crate::errors::*;
 use crate::persist::FilePersist;
 use colored::Colorize;
+use nix::unistd::AccessFlags;
 
 pub fn run(config: Config) -> Result<()> {
     let persist = FilePersist::new(&config);
+
+    nix::unistd::access(&config.data_dir, AccessFlags::X_OK).with_context(|| {
+        anyhow!(
+            "Detected insufficient permissions to access {:?}",
+            config.data_dir
+        )
+    })?;
 
     for cert in config.certs {
         let name = cert.name;
