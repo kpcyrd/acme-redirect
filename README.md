@@ -84,7 +84,7 @@ sudo systemd-tmpfiles --create
 
 # Status
 
-I'm using this in production since summer 2020.
+I'm using this in production since summer 2020 (northern hemisphere, around May).
 
 # Development
 
