@@ -164,6 +164,8 @@ impl FilePersist {
         debug!("splitting chain from cert");
         let (chain, cert) = split_chain(fullcert.certificate())?;
 
+        let bundle = format!("{}{}", fullcert.private_key(), cert);
+
         debug!("writing privkey");
         let privkey_path = path.join("privkey");
         write(&privkey_path, 0o440, fullcert.private_key().as_bytes())?;
@@ -179,6 +181,10 @@ impl FilePersist {
         debug!("writing single cert");
         let cert_path = path.join("cert");
         write(&cert_path, 0o444, cert.as_bytes())?;
+
+        debug!("writing bundle");
+        let bundle_path = path.join("bundle");
+        write(&bundle_path, 0o440, bundle.as_bytes())?;
 
         info!("marking cert live");
         let live = self.path.join("live");
