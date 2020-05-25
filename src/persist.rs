@@ -166,19 +166,19 @@ impl FilePersist {
 
         debug!("writing privkey");
         let privkey_path = path.join("privkey");
-        write(&privkey_path, 0o640, fullcert.private_key().as_bytes())?;
+        write(&privkey_path, 0o440, fullcert.private_key().as_bytes())?;
 
         debug!("writing full cert with intermediates");
         let fullkey_path = path.join("fullchain");
-        write(&fullkey_path, 0o644, fullcert.certificate().as_bytes())?;
+        write(&fullkey_path, 0o444, fullcert.certificate().as_bytes())?;
 
         debug!("writing chain");
         let chain_path = path.join("chain");
-        write(&chain_path, 0o644, chain.as_bytes())?;
+        write(&chain_path, 0o444, chain.as_bytes())?;
 
         debug!("writing single cert");
         let cert_path = path.join("cert");
-        write(&cert_path, 0o644, cert.as_bytes())?;
+        write(&cert_path, 0o444, cert.as_bytes())?;
 
         info!("marking cert live");
         let live = self.path.join("live");
