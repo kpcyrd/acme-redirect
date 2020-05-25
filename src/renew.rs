@@ -61,12 +61,15 @@ fn renew_cert(
     cert: &CertConfig,
 ) -> Result<()> {
     let mut challenge = Challenge::new(&config);
-    let request_cert = should_request_cert(&args, &config, &persist, &cert)?;
 
-    if request_cert && args.dry_run {
+    if !should_request_cert(&args, &config, &persist, &cert)? {
+        debug!("Not requesting a certificate for {:?}", cert.name);
+        return Ok(());
+    }
+
+    if args.dry_run {
         info!("renewing {:?} (dry run)", cert.name);
-        execute_hooks(&cert.exec, args.skip_restarts)?;
-    } else if request_cert {
+    } else {
         info!("renewing {:?}", cert.name);
         acme::request(
             persist.clone(),
@@ -80,8 +83,19 @@ fn renew_cert(
         )
         .with_context(|| anyhow!("Fail to get certificate {:?}", cert.name))?;
         challenge.cleanup()?;
+    }
 
-        execute_hooks(&cert.exec, args.skip_restarts)?;
+    if !args.skip_restarts {
+        if !cert.exec.is_empty() {
+            debug!("Executing hooks for this certificate");
+            execute_hooks(&cert.exec, args.dry_run)?;
+        } else {
+            debug!("Executing global default hooks");
+            execute_hooks(&config.exec, args.dry_run)?;
+        }
+
+        debug!("Executing global exec_extra hooks");
+        execute_hooks(&config.exec_extra, args.dry_run)?;
     }
 
     Ok(())
