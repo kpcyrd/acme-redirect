@@ -1,6 +1,7 @@
 use crate::cert::CertInfo;
 use crate::config::Config;
 use crate::errors::*;
+use crate::utils;
 use acme_micro::Certificate;
 use std::collections::HashMap;
 use std::ffi::OsStr;
@@ -8,21 +9,30 @@ use std::fs;
 use std::fs::{DirEntry, File, OpenOptions};
 use std::io::prelude::*;
 use std::io::ErrorKind;
-use std::os::unix::fs::symlink;
-use std::os::unix::fs::OpenOptionsExt;
-use std::path::Path;
-use std::path::PathBuf;
+use std::os::unix::fs::{symlink, OpenOptionsExt};
+use std::path::{Path, PathBuf};
+use users::Group;
 
 #[derive(Clone)]
 pub struct FilePersist {
     path: PathBuf,
+    group: Option<Group>,
 }
 
 impl FilePersist {
-    pub fn new(config: &Config) -> FilePersist {
-        FilePersist {
+    pub fn new(config: &Config) -> Result<FilePersist> {
+        let group = if let Some(name) = &config.group {
+            let group = users::get_group_by_name(name)
+                .ok_or_else(|| anyhow!("Failed to resolve group: {:?}", name))?;
+            Some(group)
+        } else {
+            None
+        };
+
+        Ok(FilePersist {
             path: config.data_dir.to_owned(),
-        }
+            group,
+        })
     }
 
     fn acc_privkey_path(&self) -> PathBuf {
@@ -159,6 +169,7 @@ impl FilePersist {
         debug!("writing privkey");
         let privkey_path = path.join("privkey");
         write(&privkey_path, 0o440, fullcert.private_key().as_bytes())?;
+        chgrp(&privkey_path, &self.group)?;
 
         debug!("writing full cert with intermediates");
         let fullkey_path = path.join("fullchain");
@@ -175,6 +186,7 @@ impl FilePersist {
         debug!("writing bundle");
         let bundle_path = path.join("bundle");
         write(&bundle_path, 0o440, bundle.as_bytes())?;
+        chgrp(&bundle_path, &self.group)?;
 
         info!("marking cert live");
         let live = self.path.join("live");
@@ -207,6 +219,14 @@ fn create(path: &Path, mode: u32) -> Result<File> {
 fn write(path: &Path, mode: u32, data: &[u8]) -> Result<()> {
     let mut f = create(&path, mode)?;
     f.write_all(data)?;
+    Ok(())
+}
+
+fn chgrp(path: &Path, group: &Option<Group>) -> Result<()> {
+    if let Some(group) = group {
+        let md = fs::metadata(path).with_context(|| anyhow!("Failed to stat {:?}", path))?;
+        utils::ensure_chgrp(path, &md, group)?;
+    }
     Ok(())
 }
 

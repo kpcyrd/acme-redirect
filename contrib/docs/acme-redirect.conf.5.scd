@@ -29,6 +29,10 @@ _renew_if_days_left=_
 
 # OPTIONS ([system])
 
+_group=_
+	Ensure the data directory and private keys have a specific group set. This
+	allows granting access to private keys by group.
+
 _exec=_
 	A list of global fallback hooks that are executed if the certificate
 	config didn't specify any hooks. The hooks are expected to be shell
@@ -47,6 +51,7 @@ acme_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
 renew_if_days_left = 30
 
 [system]
+group = "acme-redirect"
 ## Default hooks if the certificate config doesn't define any
 exec = [
     "systemctl reload nginx",

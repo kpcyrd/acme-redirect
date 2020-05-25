@@ -4,6 +4,7 @@ use crate::config::Config;
 use crate::errors::*;
 use crate::http_responses::*;
 use crate::sandbox;
+use crate::utils;
 use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
 use actix_web::{middleware, App, HttpServer};
 use std::env;
@@ -92,7 +93,34 @@ pub async fn spawn(socket: TcpListener) -> Result<()> {
     Ok(())
 }
 
+fn setup(config: &Config, args: &DaemonArgs) -> Result<()> {
+    let path = config.data_dir.as_path();
+    if !path.exists() {
+        debug!("Creating data directory: {:?}", path);
+        fs::create_dir(path).context("Failed to create data directory")?;
+    }
+
+    let md = fs::metadata(path).context("Failed to stat data directory")?;
+    utils::ensure_chmod(path, &md, 0o750).context("Failed to set permissions of data directory")?;
+
+    if let Some(name) = &args.user {
+        let user = users::get_user_by_name(name)
+            .ok_or_else(|| anyhow!("Failed to resolve user: {:?}", name))?;
+        utils::ensure_chown(path, &md, &user)?;
+    }
+
+    if let Some(name) = &config.group {
+        let group = users::get_group_by_name(name)
+            .ok_or_else(|| anyhow!("Failed to resolve group: {:?}", name))?;
+        utils::ensure_chgrp(path, &md, &group)?;
+    }
+
+    Ok(())
+}
+
 pub fn run(config: Config, args: DaemonArgs) -> Result<()> {
+    setup(&config, &args).context("Failed to run setup")?;
+
     env::set_current_dir(&config.chall_dir)?;
     let socket = TcpListener::bind(&args.bind_addr).context("Failed to bind socket")?;
     sandbox::init(&args).context("Failed to drop privileges")?;

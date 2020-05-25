@@ -27,6 +27,7 @@ pub struct AcmeConfig {
 
 #[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct SystemConfig {
+    pub group: Option<String>,
     #[serde(default)]
     pub exec: Vec<String>,
     #[serde(default)]
@@ -86,6 +87,7 @@ pub struct Config {
     pub renew_if_days_left: i64,
     pub data_dir: PathBuf,
     pub chall_dir: PathBuf,
+    pub group: Option<String>,
     pub exec: Vec<String>,
     pub exec_extra: Vec<String>,
 }
@@ -125,6 +127,7 @@ pub fn load(args: &Args) -> Result<Config> {
         data_dir: PathBuf::from(&args.data_dir),
         chall_dir: PathBuf::from(&args.chall_dir),
         certs,
+        group: config.system.group,
         exec: config.system.exec,
         exec_extra: config.system.exec_extra,
     })

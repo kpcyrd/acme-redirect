@@ -5,7 +5,7 @@ use colored::Colorize;
 use nix::unistd::AccessFlags;
 
 pub fn run(config: Config) -> Result<()> {
-    let persist = FilePersist::new(&config);
+    let persist = FilePersist::new(&config)?;
 
     nix::unistd::access(&config.data_dir, AccessFlags::X_OK).with_context(|| {
         anyhow!(

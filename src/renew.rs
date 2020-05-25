@@ -139,7 +139,7 @@ fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
 }
 
 pub fn run(config: Config, mut args: RenewArgs) -> Result<()> {
-    let persist = FilePersist::new(&config);
+    let persist = FilePersist::new(&config)?;
 
     let filter = args.certs.drain(..).collect::<HashSet<_>>();
     for cert in config.filter_certs(&filter) {
