@@ -29,7 +29,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
         info!("registering account");
         let acc = dir.register_account(contact)?;
         info!("successfully created account, saving private key");
-        persist.store_acc_privkey(&acc.acme_private_key_pem())?;
+        persist.store_acc_privkey(&acc.acme_private_key_pem()?)?;
         acc
     };
 
@@ -64,13 +64,14 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
         //
         // http://mydomain.io/.well-known/acme-challenge/<token>
         for auth in &auths {
-            let chall = auth.http_challenge();
+            let chall = auth.http_challenge()
+                .ok_or_else(|| anyhow!("acme server didn't offer http challenge"))?;
 
             // The token is the filename.
             let token = chall.http_token();
 
             // The proof is the contents of the file
-            let proof = chall.http_proof();
+            let proof = chall.http_proof()?;
 
             // Place the proof
             challenge.write(token, &proof)?;
@@ -93,7 +94,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     // Ownership is proven. Create a private key for
     // the certificate. These are provided for convenience, you
     // can provide your own keypair instead if you want.
-    let pkey_pri = create_p384_key();
+    let pkey_pri = create_p384_key()?;
 
     // Submit the CSR. This causes the ACME provider to enter a
     // state of "processing" that must be polled until the

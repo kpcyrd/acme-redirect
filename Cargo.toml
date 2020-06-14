@@ -33,7 +33,7 @@ assets = [
 ]
 
 [dependencies]
-acme-micro = "0.8"
+acme-micro = "0.9"
 structopt = "0.3.14"
 anyhow = "1.0.28"
 env_logger = "0.7.1"

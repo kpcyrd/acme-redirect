@@ -2,9 +2,9 @@
 # It is not intended for manual editing.
 [[package]]
 name = "acme-micro"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b13e0c4acf1f65810500930ac4a9586c278e2d6940380dbfd1f9d7b7b52024aa"
+checksum = "d60dbd3a63fa43d936b94e627fb7f278c5b99c1c50a3dc44aed901faa6df99e7"
 dependencies = [
  "anyhow",
  "base64 0.12.1",
