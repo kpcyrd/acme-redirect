@@ -44,15 +44,15 @@ actix-web = "2.0.0"
 actix-rt = "1.1.0"
 openssl = "0.10.29"
 time = "0.1"
-colored = "1.9.3"
-nix = "0.17.0"
+colored = "2"
+nix = "0.18"
 users = "0.10.0"
 rand = "0.7.3"
 ureq = "1.1.1"
-pem = "0.7.0"
+pem = "0.8"
 
 [target.'cfg(target_os="linux")'.dependencies]
-caps = "0.3.4"
+caps = "0.4"
 
 [dev-dependencies]
 boxxy = "0.11.0"
