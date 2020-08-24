@@ -45,7 +45,9 @@ The certificate is located here:
 /var/lib/acme-redirect/live/example.com/live/privkey
 ```
 
-A config to use it along with nginx could look like this:
+Example configuration looks like this:
+
+## nginx
 ```
 server {
     listen 443 ssl http2;
@@ -69,6 +71,39 @@ server {
     resolver 127.0.0.1;
 
     # ...
+}
+```
+
+## apache
+```
+<VirtualHost *:443>
+    SSLEngine on
+
+    SSLCertificateFile /var/lib/acme-redirect/live/EXAMPLE.COM/live/fullchain
+    SSLCertificateKeyFile /var/lib/acme-redirect/live/EXAMPLE.COM/live/privkey
+
+    Protocols h2 http/1.1
+    Header always set Strict-Transport-Security "max-age=63072000"
+</VirtualHost>
+
+SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+SSLHonorCipherOrder     off
+SSLSessionTickets       off
+
+SSLUseStapling On
+SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
+```
+
+## lighttpd
+```
+server.modules += ("mod_openssl")
+$SERVER["socket"] == "0.0.0.0:443" {
+    ssl.engine = "enable"
+    ssl.privkey= "/var/lib/acme-redirect/live/EXAMPLE.COM/live/privkey"
+    ssl.pemfile= "/var/lib/acme-redirect/live/EXAMPLE.COM/live/fullchain"
+    ssl.openssl.ssl-conf-cmd = ("MinProtocol" => "TLSv1.2")
+    #ssl.ca-file= "/var/lib/acme-redirect/live/EXAMPLE.COM/chain" # (needed in $SERVER["socket"] before lighttpd 1.4.56 if ssl.pemfile in $HTTP["host"])
 }
 ```
 

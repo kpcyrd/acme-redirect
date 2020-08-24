@@ -64,7 +64,8 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
         //
         // http://mydomain.io/.well-known/acme-challenge/<token>
         for auth in &auths {
-            let chall = auth.http_challenge()
+            let chall = auth
+                .http_challenge()
                 .ok_or_else(|| anyhow!("acme server didn't offer http challenge"))?;
 
             // The token is the filename.
