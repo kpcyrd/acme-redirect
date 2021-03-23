@@ -109,6 +109,8 @@ $SERVER["socket"] == "0.0.0.0:443" {
 
 # Installation
 
+<a href="https://repology.org/project/acme-redirect/versions"><img align="right" src="https://repology.org/badge/vertical-allrepos/acme-redirect.svg" alt="Packaging status"></a>
+
 ## Arch Linux
 
 ```bash
