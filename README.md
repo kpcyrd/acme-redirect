@@ -48,7 +48,7 @@ The certificate is located here:
 Example configuration looks like this:
 
 ## nginx
-```
+```nginx
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
@@ -75,7 +75,7 @@ server {
 ```
 
 ## apache
-```
+```apache
 <VirtualHost *:443>
     SSLEngine on
 
