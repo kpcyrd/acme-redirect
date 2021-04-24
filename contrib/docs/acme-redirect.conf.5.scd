@@ -31,7 +31,7 @@ _renew_if_days_left=_
 
 ```
 [acme]
-acme_email = "nobody@example.com
+acme_email = "nobody@example.com"
 acme_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
 ```
 
