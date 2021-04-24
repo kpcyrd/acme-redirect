@@ -41,20 +41,20 @@ systemctl enable --now acme-redirect-renew.timer
 
 The certificate is located here:
 ```
-/var/lib/acme-redirect/live/example.com/live/fullchain
-/var/lib/acme-redirect/live/example.com/live/privkey
+/var/lib/acme-redirect/live/example.com/fullchain
+/var/lib/acme-redirect/live/example.com/privkey
 ```
 
 Example configuration looks like this:
 
 ## nginx
-```
+```nginx
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
 
-    ssl_certificate /var/lib/acme-redirect/live/EXAMPLE.COM/live/fullchain;
-    ssl_certificate_key /var/lib/acme-redirect/live/EXAMPLE.COM/live/privkey;
+    ssl_certificate /var/lib/acme-redirect/live/example.com/fullchain;
+    ssl_certificate_key /var/lib/acme-redirect/live/example.com/privkey;
     ssl_session_timeout 1d;
     ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
     ssl_session_tickets off;
@@ -67,7 +67,7 @@ server {
 
     ssl_stapling on;
     ssl_stapling_verify on;
-    ssl_trusted_certificate /var/lib/acme-redirect/live/EXAMPLE.COM/chain;
+    ssl_trusted_certificate /var/lib/acme-redirect/live/example.com/chain;
     resolver 127.0.0.1;
 
     # ...
@@ -75,12 +75,12 @@ server {
 ```
 
 ## apache
-```
+```apache
 <VirtualHost *:443>
     SSLEngine on
 
-    SSLCertificateFile /var/lib/acme-redirect/live/EXAMPLE.COM/live/fullchain
-    SSLCertificateKeyFile /var/lib/acme-redirect/live/EXAMPLE.COM/live/privkey
+    SSLCertificateFile /var/lib/acme-redirect/live/example.com/fullchain
+    SSLCertificateKeyFile /var/lib/acme-redirect/live/example.com/privkey
 
     Protocols h2 http/1.1
     Header always set Strict-Transport-Security "max-age=63072000"
@@ -100,10 +100,10 @@ SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
 server.modules += ("mod_openssl")
 $SERVER["socket"] == "0.0.0.0:443" {
     ssl.engine = "enable"
-    ssl.privkey= "/var/lib/acme-redirect/live/EXAMPLE.COM/live/privkey"
-    ssl.pemfile= "/var/lib/acme-redirect/live/EXAMPLE.COM/live/fullchain"
+    ssl.privkey= "/var/lib/acme-redirect/live/example.com/privkey"
+    ssl.pemfile= "/var/lib/acme-redirect/live/example.com/fullchain"
     ssl.openssl.ssl-conf-cmd = ("MinProtocol" => "TLSv1.2")
-    #ssl.ca-file= "/var/lib/acme-redirect/live/EXAMPLE.COM/chain" # (needed in $SERVER["socket"] before lighttpd 1.4.56 if ssl.pemfile in $HTTP["host"])
+    #ssl.ca-file= "/var/lib/acme-redirect/live/example.com/chain" # (needed in $SERVER["socket"] before lighttpd 1.4.56 if ssl.pemfile in $HTTP["host"])
 }
 ```
 
