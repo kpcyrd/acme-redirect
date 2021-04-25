@@ -7,6 +7,7 @@ use crate::sandbox;
 use crate::utils;
 use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
 use actix_web::{middleware, App, HttpServer};
+use nix::sys::stat::Mode;
 use std::env;
 use std::fs;
 use std::net::TcpListener;
@@ -95,13 +96,16 @@ pub async fn spawn(socket: TcpListener) -> Result<()> {
 
 fn setup(config: &Config, args: &DaemonArgs) -> Result<()> {
     let path = config.data_dir.as_path();
+    let mode = Mode::from_bits(0o750).unwrap();
+
     if !path.exists() {
         debug!("Creating data directory: {:?}", path);
-        fs::create_dir(path).context("Failed to create data directory")?;
+        nix::unistd::mkdir(path, mode).context("Failed to create data directory")?;
     }
 
     let md = fs::metadata(path).context("Failed to stat data directory")?;
-    utils::ensure_chmod(path, &md, 0o750).context("Failed to set permissions of data directory")?;
+    utils::ensure_chmod(path, &md, mode.bits())
+        .context("Failed to set permissions of data directory")?;
 
     if let Some(name) = &args.user {
         let user = users::get_user_by_name(name)
