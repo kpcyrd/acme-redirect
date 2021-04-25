@@ -18,16 +18,6 @@ pub struct FilePersist {
     path: PathBuf,
 }
 
-fn create(path: &Path, mode: u32) -> Result<File> {
-    OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .mode(mode)
-        .open(path)
-        .map_err(Error::from)
-}
-
 impl FilePersist {
     pub fn new(config: &Config) -> FilePersist {
         FilePersist {
@@ -164,21 +154,27 @@ impl FilePersist {
         debug!("splitting chain from cert");
         let (chain, cert) = split_chain(fullcert.certificate())?;
 
+        let bundle = format!("{}{}", fullcert.private_key(), cert);
+
         debug!("writing privkey");
         let privkey_path = path.join("privkey");
-        write(&privkey_path, 0o640, fullcert.private_key().as_bytes())?;
+        write(&privkey_path, 0o440, fullcert.private_key().as_bytes())?;
 
         debug!("writing full cert with intermediates");
         let fullkey_path = path.join("fullchain");
-        write(&fullkey_path, 0o644, fullcert.certificate().as_bytes())?;
+        write(&fullkey_path, 0o444, fullcert.certificate().as_bytes())?;
 
         debug!("writing chain");
         let chain_path = path.join("chain");
-        write(&chain_path, 0o644, chain.as_bytes())?;
+        write(&chain_path, 0o444, chain.as_bytes())?;
 
         debug!("writing single cert");
         let cert_path = path.join("cert");
-        write(&cert_path, 0o644, cert.as_bytes())?;
+        write(&cert_path, 0o444, cert.as_bytes())?;
+
+        debug!("writing bundle");
+        let bundle_path = path.join("bundle");
+        write(&bundle_path, 0o440, bundle.as_bytes())?;
 
         info!("marking cert live");
         let live = self.path.join("live");
@@ -196,6 +192,16 @@ impl FilePersist {
 
         Ok(())
     }
+}
+
+fn create(path: &Path, mode: u32) -> Result<File> {
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(mode)
+        .open(path)
+        .map_err(Error::from)
 }
 
 fn write(path: &Path, mode: u32, data: &[u8]) -> Result<()> {
