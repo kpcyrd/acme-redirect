@@ -3,6 +3,7 @@ use crate::errors::*;
 use crate::persist::FilePersist;
 use acme_micro::create_p384_key;
 use acme_micro::{Directory, DirectoryUrl};
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct Request<'a> {
@@ -85,7 +86,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
             // confirm ownership of the domain, or fail due to the
             // not finding the proof. To see the change, we poll
             // the API with 5000 milliseconds wait between.
-            chall.validate(5000)?;
+            chall.validate(Duration::from_millis(5000))?;
         }
 
         // Update the state against the ACME API.
@@ -101,7 +102,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     // state of "processing" that must be polled until the
     // certificate is either issued or rejected. Again we poll
     // for the status change.
-    let ord_cert = ord_csr.finalize_pkey(pkey_pri, 5000)?;
+    let ord_cert = ord_csr.finalize_pkey(pkey_pri, Duration::from_millis(5000))?;
 
     // Now download the certificate. Also stores the cert in
     // the persistence.
