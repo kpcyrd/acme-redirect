@@ -14,6 +14,8 @@ pub const DEFAULT_RENEW_IF_DAYS_LEFT: i64 = 30;
 pub struct ConfigFile {
     #[serde(default)]
     pub acme: AcmeConfig,
+    #[serde(default)]
+    pub system: SystemConfig,
 }
 
 #[derive(Debug, Default, PartialEq, Deserialize)]
@@ -21,6 +23,14 @@ pub struct AcmeConfig {
     pub acme_email: Option<String>,
     pub acme_url: Option<String>,
     pub renew_if_days_left: Option<i64>,
+}
+
+#[derive(Debug, Default, PartialEq, Deserialize)]
+pub struct SystemConfig {
+    #[serde(default)]
+    pub exec: Vec<String>,
+    #[serde(default)]
+    pub exec_extra: Vec<String>,
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -76,6 +86,8 @@ pub struct Config {
     pub renew_if_days_left: i64,
     pub data_dir: PathBuf,
     pub chall_dir: PathBuf,
+    pub exec: Vec<String>,
+    pub exec_extra: Vec<String>,
 }
 
 impl Config {
@@ -113,6 +125,8 @@ pub fn load(args: &Args) -> Result<Config> {
         data_dir: PathBuf::from(&args.data_dir),
         chall_dir: PathBuf::from(&args.chall_dir),
         certs,
+        exec: config.system.exec,
+        exec_extra: config.system.exec_extra,
     })
 }
 

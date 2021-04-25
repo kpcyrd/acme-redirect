@@ -12,13 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install cargo-deb
-      run: cargo install cargo-deb
-
     - uses: actions/checkout@v2
 
     - name: Build package
-      run: cargo deb
+      run: contrib/debian/build.sh
 
     - name: Rename package
       run: mv target/debian/acme-redirect*.deb acme-redirect.deb
