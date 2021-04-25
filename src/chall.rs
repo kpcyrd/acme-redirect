@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::errors::*;
-use rand::Rng;
+use rand::seq::SliceRandom;
 use std::fs;
 use std::path::PathBuf;
 
@@ -41,15 +41,13 @@ impl Challenge {
 
     pub fn random(&mut self) -> Result<String> {
         const TOKEN_LEN: usize = 16;
-        let charset = VALID_CHARS.as_bytes();
         let mut rng = rand::thread_rng();
 
-        let random: String = (0..TOKEN_LEN)
-            .map(|_| {
-                let idx = rng.gen_range(0, charset.len());
-                charset[idx] as char
-            })
-            .collect();
+        let random = VALID_CHARS
+            .as_bytes()
+            .choose_multiple(&mut rng, TOKEN_LEN)
+            .map(|b| *b as char)
+            .collect::<String>();
 
         self.write(&random, &random)?;
         Ok(random)

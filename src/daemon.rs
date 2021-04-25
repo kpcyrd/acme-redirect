@@ -75,7 +75,7 @@ async fn acme(token: web::Path<String>, req: HttpRequest) -> impl Responder {
     }
 }
 
-#[actix_rt::main]
+#[actix_web::main]
 pub async fn spawn(socket: TcpListener) -> Result<()> {
     HttpServer::new(move || {
         App::new()
