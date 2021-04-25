@@ -18,16 +18,6 @@ pub struct FilePersist {
     path: PathBuf,
 }
 
-fn create(path: &Path, mode: u32) -> Result<File> {
-    OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .mode(mode)
-        .open(path)
-        .map_err(Error::from)
-}
-
 impl FilePersist {
     pub fn new(config: &Config) -> FilePersist {
         FilePersist {
@@ -202,6 +192,16 @@ impl FilePersist {
 
         Ok(())
     }
+}
+
+fn create(path: &Path, mode: u32) -> Result<File> {
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(mode)
+        .open(path)
+        .map_err(Error::from)
 }
 
 fn write(path: &Path, mode: u32, data: &[u8]) -> Result<()> {
