@@ -7,9 +7,9 @@ use std::collections::HashSet;
 pub fn check(name: &str, token: &str) -> Result<()> {
     let url = format!("http://{}/.well-known/acme-challenge/{}", name, token);
     let r = ureq::get(&url)
-        .timeout_connect(30_000)
-        .timeout_read(30_000)
-        .timeout_write(30_000)
+        .timeout_connect(3_000)
+        .timeout_read(3_000)
+        .timeout_write(3_000)
         .call();
 
     let status = r.status();
