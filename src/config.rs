@@ -27,6 +27,7 @@ pub struct AcmeConfig {
 
 #[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct SystemConfig {
+    pub data_dir: Option<PathBuf>,
     #[serde(default)]
     pub exec: Vec<String>,
     #[serde(default)]
@@ -101,7 +102,7 @@ impl Config {
     }
 }
 
-pub fn load(args: &Args) -> Result<Config> {
+pub fn load(args: Args) -> Result<Config> {
     // TODO: none of this is applied yet, we need to change all the arg parsing code for that
     let path = &args.config;
     let mut config = load_file::<_, ConfigFile>(path)
@@ -110,6 +111,14 @@ pub fn load(args: &Args) -> Result<Config> {
     if args.acme_email.is_some() {
         config.acme.acme_email = args.acme_email.clone();
     }
+
+    let data_dir = if let Some(data_dir) = args.data_dir {
+        data_dir
+    } else if let Some(data_dir) = config.system.data_dir {
+        data_dir
+    } else {
+        PathBuf::from("/var/lib/acme-redirect")
+    };
 
     let certs = load_from_folder(&args.config_dir)?
         .into_iter()
@@ -122,7 +131,7 @@ pub fn load(args: &Args) -> Result<Config> {
             .acme
             .renew_if_days_left
             .unwrap_or(DEFAULT_RENEW_IF_DAYS_LEFT),
-        data_dir: PathBuf::from(&args.data_dir),
+        data_dir,
         chall_dir: PathBuf::from(&args.chall_dir),
         certs,
         exec: config.system.exec,

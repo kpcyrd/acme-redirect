@@ -1,5 +1,6 @@
 use crate::errors::*;
 use std::io::stdout;
+use std::path::PathBuf;
 use structopt::clap::{AppSettings, Shell};
 use structopt::StructOpt;
 
@@ -37,13 +38,8 @@ pub struct Args {
         env = "ACME_CHALL_DIR"
     )]
     pub chall_dir: String,
-    #[structopt(
-        long,
-        value_name = "path",
-        default_value = "/var/lib/acme-redirect",
-        env = "ACME_DATA_DIR"
-    )]
-    pub data_dir: String,
+    #[structopt(long, value_name = "path", env = "ACME_DATA_DIR")]
+    pub data_dir: Option<PathBuf>,
     #[structopt(long, default_value=LETSENCRYPT, env="ACME_URL")]
     pub acme_url: String,
     #[structopt(long, env = "ACME_EMAIL")]

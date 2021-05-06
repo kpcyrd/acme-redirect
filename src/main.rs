@@ -22,7 +22,7 @@ fn main() -> Result<()> {
 
     match args.subcommand.clone() {
         SubCommand::Cmds(subcommand) => {
-            let config = config::load(&args)?;
+            let config = config::load(args)?;
             trace!("Loaded runtime config: {:?}", config);
 
             match subcommand {
