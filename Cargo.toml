@@ -49,6 +49,7 @@ users = "0.11"
 rand = "0.8"
 ureq = "1.1.1"
 pem = "0.8"
+config = { version = "0.11", default-features = false, features = ["toml"] }
 
 [target.'cfg(target_os="linux")'.dependencies]
 caps = "0.5"

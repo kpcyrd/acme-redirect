@@ -6,8 +6,9 @@ use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::Path;
-use std::path::PathBuf;
 
+const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
+// const LETSENCRYPT_STAGING: &str = "https://acme-staging-v02.api.letsencrypt.org/directory";
 pub const DEFAULT_RENEW_IF_DAYS_LEFT: i64 = 30;
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -21,14 +22,14 @@ pub struct ConfigFile {
 #[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct AcmeConfig {
     pub acme_email: Option<String>,
-    pub acme_url: Option<String>,
-    pub renew_if_days_left: Option<i64>,
+    pub acme_url: String,
+    pub renew_if_days_left: i64,
 }
 
 #[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct SystemConfig {
-    pub data_dir: Option<PathBuf>,
-    pub chall_dir: Option<PathBuf>,
+    pub data_dir: String,
+    pub chall_dir: String,
     #[serde(default)]
     pub exec: Vec<String>,
     #[serde(default)]
@@ -80,16 +81,11 @@ pub struct CertConfig {
     pub exec: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Config {
     pub certs: Vec<CertConfig>,
-    pub acme_email: Option<String>,
-    pub acme_url: String,
-    pub renew_if_days_left: i64,
-    pub data_dir: PathBuf,
-    pub chall_dir: PathBuf,
-    pub exec: Vec<String>,
-    pub exec_extra: Vec<String>,
+    pub acme: AcmeConfig,
+    pub system: SystemConfig,
 }
 
 impl Config {
@@ -103,61 +99,46 @@ impl Config {
     }
 }
 
-// We resolve the path in this order:
-// - Commandline argument, if set
-// - Config file value, if set
-// - Builtin default
-fn resolve_path_from_arg_config_default(
-    arg: Option<PathBuf>,
-    config: Option<PathBuf>,
-    default: &str,
-) -> PathBuf {
-    if let Some(path) = arg {
-        path
-    } else if let Some(path) = config {
-        path
-    } else {
-        PathBuf::from(default)
-    }
-}
-
 pub fn load(args: Args) -> Result<Config> {
-    // TODO: none of this is applied yet, we need to change all the arg parsing code for that
+    let mut settings = config::Config::default();
+
+    settings.set_default("acme.acme_url", LETSENCRYPT)?;
+    settings.set_default("acme.renew_if_days_left", DEFAULT_RENEW_IF_DAYS_LEFT)?;
+
+    settings.set_default("system.data_dir", "/var/lib/acme-redirect")?;
+    settings.set_default("system.chall_dir", "/run/acme-redirect")?;
+
     let path = &args.config;
-    let mut config = load_file::<_, ConfigFile>(path)
+    settings
+        .merge(config::File::new(path, config::FileFormat::Toml))
         .with_context(|| anyhow!("Failed to load config file {:?}", path))?;
 
-    if args.acme_email.is_some() {
-        config.acme.acme_email = args.acme_email.clone();
+    if let Some(acme_email) = args.acme_email {
+        settings.set("acme.acme_email", acme_email)?;
+    }
+    if let Some(acme_url) = args.acme_url {
+        settings.set("acme.acme_url", acme_url)?;
+    }
+    if let Some(data_dir) = args.data_dir {
+        settings.set("system.data_dir", data_dir)?;
+    }
+    if let Some(chall_dir) = args.chall_dir {
+        settings.set("system.chall_dir", chall_dir)?;
     }
 
-    let data_dir = resolve_path_from_arg_config_default(
-        args.data_dir,
-        config.system.data_dir,
-        "/var/lib/acme-redirect",
-    );
-    let chall_dir = resolve_path_from_arg_config_default(
-        args.chall_dir,
-        config.system.chall_dir,
-        "/run/acme-redirect",
-    );
+    let config = settings
+        .try_into::<ConfigFile>()
+        .context("Failed to parse config")?;
 
     let certs = load_from_folder(&args.config_dir)?
         .into_iter()
         .map(|c| c.cert)
         .collect();
+
     Ok(Config {
-        acme_email: args.acme_email.clone(),
-        acme_url: args.acme_url.to_string(),
-        renew_if_days_left: config
-            .acme
-            .renew_if_days_left
-            .unwrap_or(DEFAULT_RENEW_IF_DAYS_LEFT),
-        data_dir,
-        chall_dir,
         certs,
-        exec: config.system.exec,
-        exec_extra: config.system.exec_extra,
+        acme: config.acme,
+        system: config.system,
     })
 }
 

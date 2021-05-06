@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::errors::*;
 use rand::seq::SliceRandom;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 const VALID_CHARS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
@@ -18,9 +18,10 @@ pub struct Challenge {
 
 impl Challenge {
     pub fn new(config: &Config) -> Challenge {
+        let chall_dir = Path::new(&config.system.chall_dir);
         // TODO: consider creating the directory
         Challenge {
-            path: config.chall_dir.join("challs"),
+            path: chall_dir.join("challs"),
             written: Vec::new(),
         }
     }

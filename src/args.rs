@@ -1,11 +1,7 @@
 use crate::errors::*;
 use std::io::stdout;
-use std::path::PathBuf;
 use structopt::clap::{AppSettings, Shell};
 use structopt::StructOpt;
-
-const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
-// const LETSENCRYPT_STAGING: &str = "https://acme-staging-v02.api.letsencrypt.org/directory";
 
 #[derive(Debug, StructOpt)]
 #[structopt(global_settings = &[AppSettings::ColoredHelp])]
@@ -32,11 +28,11 @@ pub struct Args {
     )]
     pub config_dir: String,
     #[structopt(long, value_name = "path", env = "ACME_CHALL_DIR")]
-    pub chall_dir: Option<PathBuf>,
+    pub chall_dir: Option<String>,
     #[structopt(long, value_name = "path", env = "ACME_DATA_DIR")]
-    pub data_dir: Option<PathBuf>,
-    #[structopt(long, default_value=LETSENCRYPT, env="ACME_URL")]
-    pub acme_url: String,
+    pub data_dir: Option<String>,
+    #[structopt(long, env = "ACME_URL")]
+    pub acme_url: Option<String>,
     #[structopt(long, env = "ACME_EMAIL")]
     pub acme_email: Option<String>,
     #[structopt(subcommand)]

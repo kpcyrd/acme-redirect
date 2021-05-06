@@ -21,7 +21,7 @@ pub struct FilePersist {
 impl FilePersist {
     pub fn new(config: &Config) -> FilePersist {
         FilePersist {
-            path: config.data_dir.to_owned(),
+            path: PathBuf::from(&config.system.data_dir),
         }
     }
 
