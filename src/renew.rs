@@ -67,7 +67,7 @@ fn renew_cert(
         return Ok(());
     }
 
-    if args.dry_run {
+    if args.dry_run || args.hooks_only {
         info!("renewing {:?} (dry run)", cert.name);
     } else {
         info!("renewing {:?}", cert.name);
