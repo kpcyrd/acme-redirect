@@ -28,6 +28,7 @@ pub struct AcmeConfig {
 #[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct SystemConfig {
     pub data_dir: Option<PathBuf>,
+    pub chall_dir: Option<PathBuf>,
     #[serde(default)]
     pub exec: Vec<String>,
     #[serde(default)]
@@ -102,6 +103,24 @@ impl Config {
     }
 }
 
+// We resolve the path in this order:
+// - Commandline argument, if set
+// - Config file value, if set
+// - Builtin default
+fn resolve_path_from_arg_config_default(
+    arg: Option<PathBuf>,
+    config: Option<PathBuf>,
+    default: &str,
+) -> PathBuf {
+    if let Some(path) = arg {
+        path
+    } else if let Some(path) = config {
+        path
+    } else {
+        PathBuf::from(default)
+    }
+}
+
 pub fn load(args: Args) -> Result<Config> {
     // TODO: none of this is applied yet, we need to change all the arg parsing code for that
     let path = &args.config;
@@ -112,13 +131,16 @@ pub fn load(args: Args) -> Result<Config> {
         config.acme.acme_email = args.acme_email.clone();
     }
 
-    let data_dir = if let Some(data_dir) = args.data_dir {
-        data_dir
-    } else if let Some(data_dir) = config.system.data_dir {
-        data_dir
-    } else {
-        PathBuf::from("/var/lib/acme-redirect")
-    };
+    let data_dir = resolve_path_from_arg_config_default(
+        args.data_dir,
+        config.system.data_dir,
+        "/var/lib/acme-redirect",
+    );
+    let chall_dir = resolve_path_from_arg_config_default(
+        args.chall_dir,
+        config.system.chall_dir,
+        "/run/acme-redirect",
+    );
 
     let certs = load_from_folder(&args.config_dir)?
         .into_iter()
@@ -132,7 +154,7 @@ pub fn load(args: Args) -> Result<Config> {
             .renew_if_days_left
             .unwrap_or(DEFAULT_RENEW_IF_DAYS_LEFT),
         data_dir,
-        chall_dir: PathBuf::from(&args.chall_dir),
+        chall_dir,
         certs,
         exec: config.system.exec,
         exec_extra: config.system.exec_extra,

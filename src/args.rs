@@ -31,13 +31,8 @@ pub struct Args {
         env = "ACME_CONFIG_DIR"
     )]
     pub config_dir: String,
-    #[structopt(
-        long,
-        value_name = "path",
-        default_value = "/run/acme-redirect",
-        env = "ACME_CHALL_DIR"
-    )]
-    pub chall_dir: String,
+    #[structopt(long, value_name = "path", env = "ACME_CHALL_DIR")]
+    pub chall_dir: Option<PathBuf>,
     #[structopt(long, value_name = "path", env = "ACME_DATA_DIR")]
     pub data_dir: Option<PathBuf>,
     #[structopt(long, default_value=LETSENCRYPT, env="ACME_URL")]
