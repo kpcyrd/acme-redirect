@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
 // const LETSENCRYPT_STAGING: &str = "https://acme-staging-v02.api.letsencrypt.org/directory";
@@ -28,8 +28,8 @@ pub struct AcmeConfig {
 
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct SystemConfig {
-    pub data_dir: String,
-    pub chall_dir: String,
+    pub data_dir: PathBuf,
+    pub chall_dir: PathBuf,
     #[serde(default)]
     pub exec: Vec<String>,
     #[serde(default)]
