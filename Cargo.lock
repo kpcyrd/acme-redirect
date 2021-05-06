@@ -35,6 +35,7 @@ dependencies = [
  "pem",
  "rand 0.8.3",
  "serde",
+ "serde_json",
  "structopt",
  "time 0.1.43",
  "toml",

@@ -1,7 +1,7 @@
 use crate::args::Args;
 use crate::errors::*;
 use serde::de::DeserializeOwned;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::fs;
@@ -19,14 +19,14 @@ pub struct ConfigFile {
     pub system: SystemConfig,
 }
 
-#[derive(Debug, Default, PartialEq, Deserialize)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct AcmeConfig {
     pub acme_email: Option<String>,
     pub acme_url: String,
     pub renew_if_days_left: i64,
 }
 
-#[derive(Debug, Default, PartialEq, Deserialize)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct SystemConfig {
     pub data_dir: String,
     pub chall_dir: String,
@@ -71,7 +71,7 @@ fn load_from_folder<P: AsRef<Path>>(path: P) -> Result<Vec<CertConfigFile>> {
     Ok(configs)
 }
 
-#[derive(Debug, PartialEq, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct CertConfig {
     pub name: String,
     pub dns_names: Vec<String>,
@@ -81,7 +81,7 @@ pub struct CertConfig {
     pub exec: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub certs: Vec<CertConfig>,
     pub acme: AcmeConfig,
