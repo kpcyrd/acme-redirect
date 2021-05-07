@@ -6,6 +6,7 @@ use acme_redirect::errors::*;
 use acme_redirect::renew;
 use acme_redirect::status;
 use env_logger::Env;
+use std::io;
 use structopt::StructOpt;
 
 fn main() -> Result<()> {
@@ -22,7 +23,7 @@ fn main() -> Result<()> {
 
     match args.subcommand.clone() {
         SubCommand::Cmds(subcommand) => {
-            let config = config::load(&args)?;
+            let config = config::load(args)?;
             trace!("Loaded runtime config: {:?}", config);
 
             match subcommand {
@@ -30,6 +31,10 @@ fn main() -> Result<()> {
                 Cmd::Status => status::run(config)?,
                 Cmd::Renew(args) => renew::run(config, args)?,
                 Cmd::Check(args) => check::run(config, args)?,
+                Cmd::DumpConfig => {
+                    serde_json::to_writer_pretty(io::stdout(), &config)?;
+                    println!();
+                }
             }
         }
         SubCommand::Completions(completions) => args::gen_completions(&completions)?,

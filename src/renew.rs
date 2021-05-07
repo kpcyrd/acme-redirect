@@ -20,7 +20,7 @@ fn should_request_cert(
         Ok(true)
     } else if let Some(existing) = persist.load_cert_info(&cert.name)? {
         let days_left = existing.days_left();
-        if days_left <= config.renew_if_days_left {
+        if days_left <= config.acme.renew_if_days_left {
             info!("{:?}: existing cert is below threshold", cert.name);
             Ok(true)
         } else {
@@ -75,8 +75,8 @@ fn renew_cert(
             persist.clone(),
             &mut challenge,
             &acme::Request {
-                account_email: config.acme_email.as_deref(),
-                acme_url: &config.acme_url,
+                account_email: config.acme.acme_email.as_deref(),
+                acme_url: &config.acme.acme_url,
                 primary_name: &cert.name,
                 alt_names: &cert.dns_names,
             },
@@ -91,11 +91,11 @@ fn renew_cert(
             execute_hooks(&cert.exec, args.dry_run)?;
         } else {
             debug!("Executing global default hooks");
-            execute_hooks(&config.exec, args.dry_run)?;
+            execute_hooks(&config.system.exec, args.dry_run)?;
         }
 
         debug!("Executing global exec_extra hooks");
-        execute_hooks(&config.exec_extra, args.dry_run)?;
+        execute_hooks(&config.system.exec_extra, args.dry_run)?;
     }
 
     Ok(())
