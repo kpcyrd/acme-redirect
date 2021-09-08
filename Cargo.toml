@@ -16,7 +16,6 @@ https. It can run directly on port 80 and supports automatic issuance and renew
 of certificates out of the box with minimal configuration."""
 section = "web"
 priority = "optional"
-build-depends = "pkg-config, libssl-dev"
 maintainer-scripts = "debian"
 assets = [
     ["target/release/acme-redirect", "usr/bin/", "755"],
