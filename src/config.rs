@@ -42,7 +42,7 @@ pub struct CertConfigFile {
 }
 
 fn load_str<T: DeserializeOwned>(s: &str) -> Result<T> {
-    let conf = toml::from_str(&s).context("Failed to load config")?;
+    let conf = toml::from_str(s).context("Failed to load config")?;
     Ok(conf)
 }
 
