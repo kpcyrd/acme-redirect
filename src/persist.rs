@@ -205,7 +205,7 @@ fn create(path: &Path, mode: u32) -> Result<File> {
 }
 
 fn write(path: &Path, mode: u32, data: &[u8]) -> Result<()> {
-    let mut f = create(&path, mode)?;
+    let mut f = create(path, mode)?;
     f.write_all(data)?;
     Ok(())
 }

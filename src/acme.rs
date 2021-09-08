@@ -14,7 +14,7 @@ pub struct Request<'a> {
 }
 
 pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -> Result<()> {
-    let url = DirectoryUrl::Other(&req.acme_url);
+    let url = DirectoryUrl::Other(req.acme_url);
     let dir = Directory::from_url(url)?;
 
     let contact = if let Some(email) = req.account_email {
@@ -37,7 +37,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     // Order a new TLS certificate for a domain.
     let alt_names = req.alt_names.iter().map(AsRef::as_ref).collect::<Vec<_>>();
     info!("sending certificate order");
-    let mut ord_new = acc.new_order(&req.primary_name, &alt_names)?;
+    let mut ord_new = acc.new_order(req.primary_name, &alt_names)?;
 
     // If the ownership of the domain(s) have already been
     // authorized in a previous order, you might be able to
@@ -111,7 +111,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
 
     info!("storing certificate");
     persist
-        .store_cert(&req.primary_name, &cert)
+        .store_cert(req.primary_name, &cert)
         .context("Failed to store certificate")?;
 
     Ok(())

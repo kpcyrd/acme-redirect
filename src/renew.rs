@@ -60,9 +60,9 @@ fn renew_cert(
     persist: &FilePersist,
     cert: &CertConfig,
 ) -> Result<()> {
-    let mut challenge = Challenge::new(&config);
+    let mut challenge = Challenge::new(config);
 
-    if !should_request_cert(&args, &config, &persist, &cert)? {
+    if !should_request_cert(args, config, persist, cert)? {
         debug!("Not requesting a certificate for {:?}", cert.name);
         return Ok(());
     }
@@ -143,7 +143,7 @@ pub fn run(config: Config, mut args: RenewArgs) -> Result<()> {
 
     let filter = args.certs.drain(..).collect::<HashSet<_>>();
     for cert in config.filter_certs(&filter) {
-        if let Err(err) = renew_cert(&args, &config, &persist, &cert) {
+        if let Err(err) = renew_cert(&args, &config, &persist, cert) {
             error!("Failed to renew ({:?}): {:#}", cert.name, err);
         }
     }
