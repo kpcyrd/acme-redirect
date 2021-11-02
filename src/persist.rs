@@ -211,7 +211,7 @@ fn write(path: &Path, mode: u32, data: &[u8]) -> Result<()> {
 }
 
 fn split_chain(fullchain: &str) -> Result<(String, String)> {
-    let pems = pem::parse_many(fullchain);
+    let pems = pem::parse_many(fullchain).context("Failed to parse fullchain as pem")?;
 
     if pems.is_empty() {
         bail!("Input has no certificates");
