@@ -146,6 +146,9 @@ install -Dm 644 -t /etc/systemd/system \
     contrib/systemd/acme-redirect-renew.service \
     contrib/systemd/acme-redirect-renew.timer \
     contrib/systemd/acme-redirect.service
+# patch unit files to point to the correct binary location
+sudo sed -i 's_/usr/bin/acme-redirect_/usr/local/bin/acme-redirect_' /etc/systemd/system/acme-redirect.service /etc/systemd/system/acme-redirect-renew.service
+
 install -Dm 644 contrib/systemd/acme-redirect.sysusers /etc/sysusers.d/acme-redirect.conf
 install -Dm 644 contrib/systemd/acme-redirect.tmpfiles /etc/tmpfiles.d/acme-redirect.conf
 
