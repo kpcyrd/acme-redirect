@@ -136,7 +136,7 @@ git clone https://github.com/kpcyrd/acme-redirect.git
 cd acme-redirect/
 cargo build --release
 
-install -Dm 755 -t /usr/local/bin \
+install -Dm 755 -t /usr/bin \
     target/release/acme-redirect
 
 install -Dm 644 contrib/confs/acme-redirect.conf -t /etc

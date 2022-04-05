@@ -10,5 +10,5 @@ FROM alpine:3.13
 RUN apk add --no-cache libgcc openssl
 COPY --from=0 \
     /usr/src/acme-redirect/target/release/acme-redirect \
-    /usr/local/bin/
+    /usr/bin/
 ENTRYPOINT ["acme-redirect"]
