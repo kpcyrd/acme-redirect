@@ -53,7 +53,7 @@ async fn redirect(req: HttpRequest) -> impl Responder {
     }
 
     HttpResponse::MovedPermanently()
-        .header("Location", url)
+        .append_header(("Location", url))
         .body(REDIRECT)
 }
 

@@ -100,34 +100,21 @@ impl Config {
 }
 
 pub fn load(args: Args) -> Result<Config> {
-    let mut settings = config::Config::default();
-
-    settings.set_default("acme.acme_url", LETSENCRYPT)?;
-    settings.set_default("acme.renew_if_days_left", DEFAULT_RENEW_IF_DAYS_LEFT)?;
-
-    settings.set_default("system.data_dir", "/var/lib/acme-redirect")?;
-    settings.set_default("system.chall_dir", "/run/acme-redirect")?;
-
-    let path = &args.config;
-    settings
-        .merge(config::File::new(path, config::FileFormat::Toml))
-        .with_context(|| anyhow!("Failed to load config file {:?}", path))?;
-
-    if let Some(acme_email) = args.acme_email {
-        settings.set("acme.acme_email", acme_email)?;
-    }
-    if let Some(acme_url) = args.acme_url {
-        settings.set("acme.acme_url", acme_url)?;
-    }
-    if let Some(data_dir) = args.data_dir {
-        settings.set("system.data_dir", data_dir)?;
-    }
-    if let Some(chall_dir) = args.chall_dir {
-        settings.set("system.chall_dir", chall_dir)?;
-    }
+    let settings = config::Config::builder()
+        .set_default("acme.acme_url", LETSENCRYPT)?
+        .set_default("acme.renew_if_days_left", DEFAULT_RENEW_IF_DAYS_LEFT)?
+        .set_default("system.data_dir", "/var/lib/acme-redirect")?
+        .set_default("system.chall_dir", "/run/acme-redirect")?
+        .add_source(config::File::new(&args.config, config::FileFormat::Toml))
+        .set_override_option("acme.acme_email", args.acme_email)?
+        .set_override_option("acme.acme_url", args.acme_url)?
+        .set_override_option("system.data_dir", args.data_dir)?
+        .set_override_option("system.chall_dir", args.chall_dir)?
+        .build()
+        .context("Failed to load config")?;
 
     let config = settings
-        .try_into::<ConfigFile>()
+        .try_deserialize::<ConfigFile>()
         .context("Failed to parse config")?;
 
     let certs = load_from_folder(&args.config_dir)?
