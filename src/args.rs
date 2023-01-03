@@ -1,18 +1,17 @@
 use crate::errors::*;
+use clap::{ArgAction, CommandFactory, Parser};
+use clap_complete::Shell;
 use std::io::stdout;
-use structopt::clap::{AppSettings, Shell};
-use structopt::StructOpt;
 
-#[derive(Debug, StructOpt)]
-#[structopt(global_settings = &[AppSettings::ColoredHelp])]
+#[derive(Debug, Parser)]
 pub struct Args {
     /// Verbose logging output (Can be set multiple times)
-    #[structopt(short, long, global = true, parse(from_occurrences))]
+    #[arg(short, long, global = true, action = ArgAction::Count)]
     pub verbose: u8,
     /// Silent output (except errors)
-    #[structopt(short, long, global = true)]
+    #[arg(short, long, global = true)]
     pub quiet: bool,
-    #[structopt(
+    #[arg(
         short,
         long,
         value_name = "path",
@@ -20,34 +19,34 @@ pub struct Args {
         env = "ACME_CONFIG"
     )]
     pub config: String,
-    #[structopt(
+    #[arg(
         long,
         value_name = "path",
         default_value = "/etc/acme-redirect.d",
         env = "ACME_CONFIG_DIR"
     )]
     pub config_dir: String,
-    #[structopt(long, value_name = "path", env = "ACME_CHALL_DIR")]
+    #[arg(long, value_name = "path", env = "ACME_CHALL_DIR")]
     pub chall_dir: Option<String>,
-    #[structopt(long, value_name = "path", env = "ACME_DATA_DIR")]
+    #[arg(long, value_name = "path", env = "ACME_DATA_DIR")]
     pub data_dir: Option<String>,
-    #[structopt(long, env = "ACME_URL")]
+    #[arg(long, env = "ACME_URL")]
     pub acme_url: Option<String>,
-    #[structopt(long, env = "ACME_EMAIL")]
+    #[arg(long, env = "ACME_EMAIL")]
     pub acme_email: Option<String>,
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     pub subcommand: SubCommand,
 }
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 pub enum SubCommand {
-    #[structopt(flatten)]
+    #[clap(flatten)]
     Cmds(Cmd),
     /// Generate shell completions
     Completions(Completions),
 }
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 pub enum Cmd {
     /// Run the redirect daemon
     Daemon(DaemonArgs),
@@ -61,54 +60,58 @@ pub enum Cmd {
     DumpConfig,
 }
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 pub struct DaemonArgs {
     /// The address to listen on
-    #[structopt(short = "B", long, default_value = "[::]:80", env = "ACME_BIND_ADDR")]
+    #[arg(short = 'B', long, default_value = "[::]:80", env = "ACME_BIND_ADDR")]
     pub bind_addr: String,
     /// Drop from root to this user
-    #[structopt(long)]
+    #[arg(long)]
     pub user: Option<String>,
     /// Chroot into the challenge directory
-    #[structopt(long)]
+    #[arg(long)]
     pub chroot: bool,
 }
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 pub struct RenewArgs {
     /// Do not actually do anything, just show what would happen
-    #[structopt(short = "n", long)]
+    #[arg(short = 'n', long)]
     pub dry_run: bool,
     /// Renew certificates even if they are not about to expire
-    #[structopt(long)]
+    #[arg(long)]
     pub force_renew: bool,
     // TODO: add code to check if the cert actually fulfills the dns_names in the config
     /// Do not execute the configured exec commands
-    #[structopt(long)]
+    #[arg(long)]
     pub skip_restarts: bool,
     /// Don't clean up old certs that are not live anymore
-    #[structopt(long)]
+    #[arg(long)]
     pub skip_cleanup: bool,
     /// Only execute hooks without actually renewing certs
-    #[structopt(long)]
+    #[arg(long)]
     pub hooks_only: bool,
     /// Only renew specific certs
     pub certs: Vec<String>,
 }
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 pub struct CheckArgs {
     /// Only check specific certs
     pub certs: Vec<String>,
 }
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 pub struct Completions {
-    #[structopt(possible_values=&Shell::variants())]
     pub shell: Shell,
 }
 
 pub fn gen_completions(args: &Completions) -> Result<()> {
-    Args::clap().gen_completions_to("acme-redirect", args.shell, &mut stdout());
+    clap_complete::generate(
+        args.shell,
+        &mut Args::command(),
+        "acme-redirect",
+        &mut stdout(),
+    );
     Ok(())
 }

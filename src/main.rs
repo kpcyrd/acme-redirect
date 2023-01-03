@@ -5,12 +5,12 @@ use acme_redirect::daemon;
 use acme_redirect::errors::*;
 use acme_redirect::renew;
 use acme_redirect::status;
+use clap::Parser;
 use env_logger::Env;
 use std::io;
-use structopt::StructOpt;
 
 fn main() -> Result<()> {
-    let args = Args::from_args();
+    let args = Args::parse();
 
     let logging = match (args.quiet, args.verbose) {
         (true, _) => "warn",
