@@ -11,7 +11,7 @@ const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
 // const LETSENCRYPT_STAGING: &str = "https://acme-staging-v02.api.letsencrypt.org/directory";
 pub const DEFAULT_RENEW_IF_DAYS_LEFT: i64 = 30;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct ConfigFile {
     #[serde(default)]
     pub acme: AcmeConfig,
@@ -19,14 +19,14 @@ pub struct ConfigFile {
     pub system: SystemConfig,
 }
 
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AcmeConfig {
     pub acme_email: Option<String>,
     pub acme_url: String,
     pub renew_if_days_left: i64,
 }
 
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SystemConfig {
     pub data_dir: PathBuf,
     pub chall_dir: PathBuf,
@@ -36,7 +36,7 @@ pub struct SystemConfig {
     pub exec_extra: Vec<String>,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct CertConfigFile {
     cert: CertConfig,
 }
@@ -71,7 +71,7 @@ fn load_from_folder<P: AsRef<Path>>(path: P) -> Result<Vec<CertConfigFile>> {
     Ok(configs)
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct CertConfig {
     pub name: String,
     pub dns_names: Vec<String>,
