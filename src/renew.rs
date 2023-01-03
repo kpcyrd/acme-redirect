@@ -128,7 +128,7 @@ fn cleanup_certs(persist: &FilePersist, dry_run: bool) -> Result<()> {
                 );
             } else {
                 info!("cert {:?} is expired, deleting...", name);
-                if let Err(err) = fs::remove_dir_all(&path) {
+                if let Err(err) = fs::remove_dir_all(path) {
                     error!("Failed to delete {:?}: {:#}", name, err);
                 }
             }

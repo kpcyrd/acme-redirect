@@ -93,7 +93,7 @@ pub async fn spawn(socket: TcpListener) -> Result<()> {
 }
 
 pub fn run(config: Config, args: DaemonArgs) -> Result<()> {
-    env::set_current_dir(&config.system.chall_dir)?;
+    env::set_current_dir(config.system.chall_dir)?;
     let socket = TcpListener::bind(&args.bind_addr).context("Failed to bind socket")?;
     sandbox::init(&args).context("Failed to drop privileges")?;
     spawn(socket)
