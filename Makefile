@@ -80,3 +80,26 @@ install-conf:
 	install -Dm 644 -t $(conf_dir) contrib/confs/acme-redirect.conf
 	install -Dm 644 contrib/confs/certs.d/example.com.conf \
 		$(conf_dir)/acme-redirect.d/example.com.conf.sample
+
+# uninstall
+# ----------
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(bin_dir)/acme-redirect
+
+	rm -f $(share_dir)/bash-completion/completions/acme-redirect
+	rm -f $(share_dir)/zsh/site-functions/_acme-redirect
+	rm -f $(share_dir)/fish/vendor_completions.d/acme-redirect.fish
+
+	rm -f $(man_dir)/man1/acme-redirect.1*
+	rm -f $(man_dir)/man5/acme-redirect.conf.5*
+	rm -f $(man_dir)/man5/acme-redirect.d.5*
+
+	rm -f $(unit_dir)/acme-redirect.service
+	rm -f $(unit_dir)/acme-redirect-renew.service
+	rm -f $(unit_dir)/acme-redirect-renew.timer
+	rm -f $(sysusers_dir)/acme-redirect.conf
+	rm -f $(tmpfiles_dir)/acme-redirect.conf
+
+	# don't touch the configs
