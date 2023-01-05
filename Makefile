@@ -8,7 +8,7 @@ sysusers_dir := $(lib_dir)/sysusers.d
 tmpfiles_dir := $(lib_dir)/tmpfiles.d
 conf_dir := /etc
 
-# allow the binary path in unit files to be different to the intsall location
+# allow the binary path in unit files to be different to the install location
 # this could be useful for packaging
 unit_bin_path := $(bin_dir)/acme-redirect
 
