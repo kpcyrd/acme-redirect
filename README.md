@@ -134,20 +134,9 @@ apt update && apt install acme-redirect
 ```bash
 git clone https://github.com/kpcyrd/acme-redirect.git
 cd acme-redirect/
-cargo build --release
 
-install -Dm 755 -t /usr/bin \
-    target/release/acme-redirect
-
-install -Dm 644 contrib/confs/acme-redirect.conf -t /etc
-install -Dm 644 contrib/confs/certs.d/example.com.conf /etc/acme-redirect.d/example.com.conf.sample
-
-install -Dm 644 -t /etc/systemd/system \
-    contrib/systemd/acme-redirect-renew.service \
-    contrib/systemd/acme-redirect-renew.timer \
-    contrib/systemd/acme-redirect.service
-install -Dm 644 contrib/systemd/acme-redirect.sysusers /etc/sysusers.d/acme-redirect.conf
-install -Dm 644 contrib/systemd/acme-redirect.tmpfiles /etc/tmpfiles.d/acme-redirect.conf
+make build
+sudo make install
 
 sudo systemd-sysusers
 sudo systemd-tmpfiles --create
