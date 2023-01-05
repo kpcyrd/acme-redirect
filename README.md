@@ -149,7 +149,7 @@ sudo systemd-tmpfiles --create
 ### Uninstall
 
 ```bash
-make uninstall
+sudo make uninstall
 ```
 
 # Status
