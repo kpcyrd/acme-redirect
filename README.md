@@ -136,10 +136,20 @@ git clone https://github.com/kpcyrd/acme-redirect.git
 cd acme-redirect/
 
 make build
+```
+
+### Install
+
+```bash
 sudo make install
 
 sudo systemd-sysusers
 sudo systemd-tmpfiles --create
+```
+### Uninstall
+
+```bash
+make uninstall
 ```
 
 # Status
