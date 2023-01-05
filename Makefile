@@ -8,6 +8,10 @@ sysusers_dir := $(lib_dir)/sysusers.d
 tmpfiles_dir := $(lib_dir)/tmpfiles.d
 conf_dir := /etc
 
+# allow the binary path in unit files to be different to the intsall location
+# this could be useful for packaging
+unit_bin_path := $(bin_dir)/acme-redirect
+
 # build
 # ----------
 
@@ -58,11 +62,15 @@ install-docs: docs
 
 .PHONY: install-units
 install-units:
-	install -d $(unit_dir)
-	install -Dm 644 -t $(unit_dir) \
-		contrib/systemd/acme-redirect-renew.service \
-    contrib/systemd/acme-redirect-renew.timer \
-    contrib/systemd/acme-redirect.service
+	# binary path needs to be updated
+	for UNIT in acme-redirect.service acme-redirect-renew.service; do \
+		cp contrib/systemd/$$UNIT contrib/systemd/$$UNIT.updated; \
+		sed -i 's|/usr/bin/acme-redirect|$(unit_bin_path)|' contrib/systemd/$$UNIT.updated; \
+		install -Dm 644 contrib/systemd/$$UNIT.updated $(unit_dir)/$$UNIT; \
+	done
+
+	install -Dm 644 -t $(unit_dir) contrib/systemd/acme-redirect-renew.timer
+
 	install -Dm 644 contrib/systemd/acme-redirect.sysusers $(sysusers_dir)/acme-redirect.conf
 	install -Dm 644 contrib/systemd/acme-redirect.tmpfiles $(tmpfiles_dir)/acme-redirect.conf
 
