@@ -18,7 +18,7 @@ pub fn request(persist: FilePersist, challenge: &mut Challenge, req: &Request) -
     let dir = Directory::from_url(url)?;
 
     let contact = if let Some(email) = req.account_email {
-        vec![format!("mailto:{}", email)]
+        vec![format!("mailto:{email}")]
     } else {
         vec![]
     };

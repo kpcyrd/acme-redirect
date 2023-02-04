@@ -17,7 +17,7 @@ pub fn run(config: Config) -> Result<()> {
         // TODO: also show alt names?
         if let Some(cert) = persist.load_cert_info(&name)? {
             let days_left = cert.days_left();
-            let status = format!("{} days left", days_left);
+            let status = format!("{days_left} days left");
             let status = if days_left > config.acme.renew_if_days_left {
                 status.green()
             } else if days_left > 0 {

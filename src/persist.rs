@@ -133,7 +133,7 @@ impl FilePersist {
         let path = loop {
             let mut folder = now.clone() + "-" + name;
             if i > 0 {
-                folder.push_str(&format!("-{}", i));
+                folder.push_str(&format!("-{i}"));
             }
 
             let path = path.join(folder);

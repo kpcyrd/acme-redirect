@@ -47,7 +47,7 @@ async fn redirect(req: HttpRequest) -> impl Responder {
     let path = req.uri();
     debug!("path: {:?}", path);
 
-    let url = format!("https://{}{}", host, path);
+    let url = format!("https://{host}{path}");
     if url.chars().any(|c| c == '\n' || c == '\r') {
         return bad_request();
     }

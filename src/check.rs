@@ -5,7 +5,7 @@ use crate::errors::*;
 use std::collections::HashSet;
 
 pub fn check(name: &str, token: &str) -> Result<()> {
-    let url = format!("http://{}/.well-known/acme-challenge/{}", name, token);
+    let url = format!("http://{name}/.well-known/acme-challenge/{token}");
     let r = ureq::get(&url)
         .timeout_connect(3_000)
         .timeout_read(3_000)
