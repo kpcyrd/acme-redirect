@@ -31,6 +31,9 @@ assets = [
     ["contrib/systemd/acme-redirect.tmpfiles", "usr/lib/tmpfiles.d/acme-redirect.conf", "644"],
 ]
 
+[features]
+vendored = ["openssl/vendored"]
+
 [dependencies]
 acme-micro = "0.12"
 actix-web = "4"
