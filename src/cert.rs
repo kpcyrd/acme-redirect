@@ -30,7 +30,7 @@ impl CertInfo {
     }
 
     pub fn days_left(&self) -> i64 {
-        let dur = self.expires - time::now();
+        let dur = self.expires - time::now_utc();
         dur.num_days()
     }
 }
