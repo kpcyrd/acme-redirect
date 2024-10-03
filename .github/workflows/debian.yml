@@ -21,7 +21,7 @@ jobs:
       run: mv target/debian/acme-redirect*.deb acme-redirect.deb
 
     - name: Archive package
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: acme-redirect-debian-amd64
         path: acme-redirect.deb
