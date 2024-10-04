@@ -3,10 +3,10 @@ name = "acme-redirect"
 version = "0.6.2"
 description = "Tiny http daemon that answers acme challenges and redirects everything else to https"
 authors = ["kpcyrd <git@rxv.cc>"]
-license = "GPL-3.0"
+license = "GPL-3.0-or-later"
 repository = "https://github.com/kpcyrd/acme-redirect"
 readme = "README.md"
-edition = "2018"
+edition = "2021"
 
 [package.metadata.deb]
 extended-description = """\
