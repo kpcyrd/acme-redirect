@@ -30,14 +30,20 @@ jobs:
         key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-release-
 
+    - name: Install repro-env
+      run: sudo apt-get install -y repro-env
+
     - name: Build
-      run: cargo build --release --verbose
+      run: make
+
+    - name: Print sha256 of binary
+      run: sha256sum target/x86_64-unknown-linux-musl/release/acme-redirect
 
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
         name: bin
-        path: target/release/acme-redirect
+        path: target/x86_64-unknown-linux-musl/release/acme-redirect
 
   unit-test:
     runs-on: ubuntu-22.04
