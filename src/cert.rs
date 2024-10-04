@@ -1,40 +1,27 @@
 use crate::errors::*;
-use openssl::x509::X509;
 
 #[derive(Debug)]
 pub struct CertInfo {
     pub not_before: String,
-    pub expires: time::Tm,
+    pub expires: time::OffsetDateTime,
 }
 
 impl CertInfo {
-    pub fn from_pem(s: &[u8]) -> Result<CertInfo> {
-        // load as x509
-        let x509 = X509::from_pem(s).context("Failed to parse pem file")?;
+    pub fn from_pem(certificate: &[u8]) -> Result<CertInfo> {
+        let pem = pem::parse(certificate).context("Failed to parse pem file")?;
 
-        let not_before = x509.not_before().to_string();
-
-        // convert asn1 time to Tm
-        let not_after = x509.not_after().to_string();
-        // Display trait produces this format, which is kinda dumb.
-        // Apr 19 08:48:46 2019 GMT
-        let expires = parse_date(&not_after);
-        // let dur = expires - time::now();
-
-        // dur.num_days()
+        let (_, certificate) = x509_parser::parse_x509_certificate(pem.contents())
+            .context("Failed to parse certificate")?;
+        let validity = certificate.validity();
 
         Ok(CertInfo {
-            not_before,
-            expires,
+            not_before: validity.not_before.to_string(),
+            expires: validity.not_after.to_datetime(),
         })
     }
 
     pub fn days_left(&self) -> i64 {
-        let dur = self.expires - time::now();
-        dur.num_days()
+        let dur = self.expires - time::OffsetDateTime::now_utc();
+        dur.whole_days()
     }
-}
-
-fn parse_date(s: &str) -> time::Tm {
-    time::strptime(s, "%h %e %H:%M:%S %Y %Z").expect("strptime")
 }

@@ -12,6 +12,7 @@ use std::os::unix::fs::symlink;
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 use std::path::PathBuf;
+use time::OffsetDateTime;
 
 #[derive(Clone)]
 pub struct FilePersist {
@@ -120,9 +121,13 @@ impl FilePersist {
         Ok(())
     }
 
+    fn format_date(datetime: &OffsetDateTime) -> Result<String> {
+        let date = datetime.format(&time::macros::format_description!("[year][month][day]"))?;
+        Ok(date)
+    }
+
     pub fn store_cert(&self, name: &str, fullcert: &Certificate) -> Result<()> {
-        let now = time::now_utc();
-        let now = time::strftime("%Y%m%d", &now)?;
+        let now = Self::format_date(&OffsetDateTime::now_utc())?;
 
         let path = self.path.join("certs");
         debug!("creating folder: {:?}", path);
@@ -131,7 +136,7 @@ impl FilePersist {
 
         let mut i = 0;
         let path = loop {
-            let mut folder = now.clone() + "-" + name;
+            let mut folder = format!("{now}-{name}");
             if i > 0 {
                 folder.push_str(&format!("-{i}"));
             }
@@ -611,5 +616,14 @@ AxdDRttRGfpNyAxuMiyCccwXW2rNfc7EHQ7Myb7f3eE9cE6wLu/JLCCUotgafi08\r\n\
 aJ6TSPxS0YlSBhKYNbOUI7R8ZbjAJe/vI1IcYYhMaIW0kAzo4nxEmg==\r\n\
 -----END CERTIFICATE-----\r\n"
         );
+    }
+
+    #[test]
+    fn test_format_datetime() {
+        let date = FilePersist::format_date(&time::macros::datetime!(
+            2024-10-04 19:00:00 +00:00
+        ))
+        .unwrap();
+        assert_eq!(date, "20241004");
     }
 }
