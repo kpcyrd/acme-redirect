@@ -12,6 +12,7 @@ use std::os::unix::fs::symlink;
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 use std::path::PathBuf;
+use time::OffsetDateTime;
 
 #[derive(Clone)]
 pub struct FilePersist {
@@ -121,8 +122,9 @@ impl FilePersist {
     }
 
     pub fn store_cert(&self, name: &str, fullcert: &Certificate) -> Result<()> {
-        let now = time::now_utc();
-        let now = time::strftime("%Y%m%d", &now)?;
+        let now = OffsetDateTime::now_utc().format(&time::macros::format_description!(
+            "[hour]:[minute]:[second]"
+        ))?;
 
         let path = self.path.join("certs");
         debug!("creating folder: {:?}", path);
