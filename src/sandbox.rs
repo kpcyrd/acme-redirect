@@ -39,7 +39,7 @@ fn drop_caps() -> Result<()> {
 pub fn init(args: &DaemonArgs) -> Result<()> {
     let user = if let Some(name) = &args.user {
         debug!("Resolving uid for {:?}", name);
-        let user = users::get_user_by_name(&name)
+        let user = uzers::get_user_by_name(&name)
             .ok_or_else(|| anyhow!("Failed to look up user: {:?}", name))?;
         let uid = Uid::from_raw(user.uid());
         let gid = Gid::from_raw(user.primary_group_id());
