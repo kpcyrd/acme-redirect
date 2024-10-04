@@ -32,10 +32,10 @@ assets = [
 ]
 
 [features]
-vendored = ["openssl/vendored"]
+vendored = ["acme-micro/vendored"]
 
 [dependencies]
-acme-micro = "0.12"
+acme-micro = "0.13"
 actix-web = "4"
 anyhow = "1.0.28"
 clap = { version = "4.0.32", features = ["derive", "env"] }
@@ -45,7 +45,6 @@ config = { version = "0.14", default-features = false, features = ["toml"] }
 env_logger = "0.11"
 log = "0.4.8"
 nix = { version = "0.29", features = ["fs", "user"] }
-openssl = "0.10.29"
 pem = "3"
 rand = "0.8"
 serde = "1.0.106"
