@@ -119,13 +119,12 @@ pacman -S acme-redirect
 
 ## Debian based
 
-Currently supported: buster
+Currently supported: bookworm
 
 ```bash
 apt install debian-keyring
-gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add -
-apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc
-echo deb https://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list
+gpg --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | tee /etc/apt/trusted.gpg.d/apt-vulns-xyz.gpg > /dev/null
+echo deb https://apt.vulns.xyz stable main >> /etc/apt/sources.list.d/apt-vulns-xyz.list
 apt update && apt install acme-redirect
 ```
 
