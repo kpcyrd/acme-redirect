@@ -30,7 +30,7 @@ jobs:
         restore-keys: ${{ runner.os }}-cargo-release-
 
     - name: Install repro-env
-      run: sudo apt-get install -y repro-env
+      run: sudo apt-get update && sudo apt-get install -y repro-env
 
     - name: Build
       run: make
