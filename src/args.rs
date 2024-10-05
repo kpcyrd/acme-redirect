@@ -4,6 +4,7 @@ use clap_complete::Shell;
 use std::io::stdout;
 
 #[derive(Debug, Parser)]
+#[command(version)]
 pub struct Args {
     /// Verbose logging output (Can be set multiple times)
     #[arg(short, long, global = true, action = ArgAction::Count)]
