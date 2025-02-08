@@ -64,8 +64,8 @@ pub enum Cmd {
 #[derive(Debug, Clone, Parser)]
 pub struct DaemonArgs {
     /// The address to listen on
-    #[arg(short = 'B', long, default_value = "[::]:80", env = "ACME_BIND_ADDR")]
-    pub bind_addr: String,
+    #[arg(short = 'B', long, env = "ACME_BIND_ADDR")]
+    pub bind_addr: Option<String>,
     /// Drop from root to this user
     #[arg(long)]
     pub user: Option<String>,

@@ -1,6 +1,6 @@
 use crate::args::DaemonArgs;
 use crate::chall;
-use crate::config::Config;
+use crate::config::{Config, BIND_ALL_PORT_80};
 use crate::errors::*;
 use crate::http_responses::*;
 use crate::sandbox;
@@ -99,8 +99,14 @@ pub fn run(config: Config, args: DaemonArgs) -> Result<()> {
             config.system.chall_dir
         )
     })?;
-    let socket = TcpListener::bind(&args.bind_addr)
-        .with_context(|| anyhow!("Failed to bind socket: {}", args.bind_addr))?;
+
+    let addr = args
+        .bind_addr
+        .as_deref()
+        .or(config.system.addr.as_deref())
+        .unwrap_or(BIND_ALL_PORT_80);
+    let socket =
+        TcpListener::bind(addr).with_context(|| anyhow!("Failed to bind socket: {addr}"))?;
     sandbox::init(&args).context("Failed to drop privileges")?;
     spawn(socket)
 }

@@ -1,4 +1,4 @@
-FROM rust:alpine3.17
+FROM rust:alpine3.21
 ENV RUSTFLAGS="-C target-feature=-crt-static"
 WORKDIR /app
 RUN apk add --no-cache musl-dev openssl-dev
@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/var/cache/buildkit \
     cp -v /var/cache/buildkit/target/release/acme-redirect .
 RUN strip acme-redirect
 
-FROM alpine:3.17
+FROM alpine:3.21
 RUN apk add --no-cache libgcc openssl
 COPY --from=0 /app/acme-redirect /usr/bin
 ENTRYPOINT ["acme-redirect"]
