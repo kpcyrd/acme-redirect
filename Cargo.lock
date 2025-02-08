@@ -23,7 +23,7 @@ dependencies = [
 
 [[package]]
 name = "acme-redirect"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "acme-micro",
  "actix-web",
