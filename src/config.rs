@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 const LETSENCRYPT: &str = "https://acme-v02.api.letsencrypt.org/directory";
 // const LETSENCRYPT_STAGING: &str = "https://acme-staging-v02.api.letsencrypt.org/directory";
 pub const DEFAULT_RENEW_IF_DAYS_LEFT: i64 = 30;
+pub const BIND_ALL_PORT_80: &str = "[::]:80";
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct ConfigFile {
@@ -28,6 +29,7 @@ pub struct AcmeConfig {
 
 #[derive(Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SystemConfig {
+    pub addr: Option<String>,
     pub data_dir: PathBuf,
     pub chall_dir: PathBuf,
     #[serde(default)]

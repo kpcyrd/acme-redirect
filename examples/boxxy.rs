@@ -4,7 +4,7 @@ use boxxy::shprintln;
 fn stage1(sh: &mut boxxy::Shell, _args: Vec<String>) -> Result<(), boxxy::Error> {
     shprintln!(sh, "[*] starting stage1");
     acme_redirect::sandbox::init(&DaemonArgs {
-        bind_addr: "[::]:80".to_string(),
+        bind_addr: Some("[::]:80".to_string()),
         chroot: true,
         user: Some("nobody".to_string()),
     })
