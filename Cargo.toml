@@ -35,7 +35,7 @@ assets = [
 vendored = ["acme-micro/vendored"]
 
 [dependencies]
-acme-micro = "0.13"
+acme-micro = "0.14"
 actix-web = "4"
 anyhow = "1.0.28"
 clap = { version = "4.0.32", features = ["derive", "env"] }
