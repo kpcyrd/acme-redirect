@@ -12,15 +12,8 @@ use std::net::TcpListener;
 use std::path::Path;
 
 fn get_host(req: &HttpRequest) -> Option<&str> {
-    if let Some(host) = req.headers().get("Host") {
-        if let Ok(host) = host.to_str() {
-            Some(host)
-        } else {
-            None
-        }
-    } else {
-        None
-    }
+    let host = req.headers().get("Host")?;
+    host.to_str().ok()
 }
 
 #[inline]
