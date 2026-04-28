@@ -44,7 +44,7 @@ colored = "2"
 config = { version = "0.15", default-features = false, features = ["toml"] }
 env_logger = "0.11"
 log = "0.4.8"
-nix = { version = "0.29", features = ["fs", "user"] }
+nix = { version = "0.31", features = ["fs", "user"] }
 pem = "3"
 rand = "0.10"
 serde = "1.0.106"
