@@ -1,6 +1,5 @@
 use crate::args::DaemonArgs;
 use crate::errors::*;
-use caps::CapSet;
 use nix::unistd::{Gid, Uid};
 use std::env;
 use std::fs;
@@ -28,11 +27,15 @@ fn chroot(path: &Path) -> Result<()> {
 }
 
 fn drop_caps() -> Result<()> {
-    debug!("Permanently clearing capability sets");
-    caps::clear(None, CapSet::Effective)
-        .map_err(|err| anyhow!("Failed to clear effective capability set: {}", err))?;
-    caps::clear(None, CapSet::Permitted)
-        .map_err(|err| anyhow!("Failed to clear permitted capability set: {}", err))?;
+    #[cfg(target_os = "linux")]
+    {
+        use caps::CapSet;
+        debug!("Permanently clearing capability sets");
+        caps::clear(None, CapSet::Effective)
+            .map_err(|err| anyhow!("Failed to clear effective capability set: {}", err))?;
+        caps::clear(None, CapSet::Permitted)
+            .map_err(|err| anyhow!("Failed to clear permitted capability set: {}", err))?;
+    }
     Ok(())
 }
 
@@ -57,6 +60,7 @@ pub fn init(args: &DaemonArgs) -> Result<()> {
 
     if let Some((uid, gid)) = user {
         debug!("Dropping uid:gid to {}:{}", uid, gid);
+        #[cfg(not(target_os = "macos"))]
         nix::unistd::setgroups(&[]).context("Failed to clear supplementary groups")?;
         nix::unistd::setgid(gid).context("Failed to drop gid")?;
         nix::unistd::setuid(uid).context("Failed to drop uid")?;
