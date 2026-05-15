@@ -9,7 +9,12 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
 pub fn check(name: &str, token: &str) -> Result<()> {
     let url = format!("http://{name}/.well-known/acme-challenge/{token}");
-    let r = ureq::get(&url).timeout(REQUEST_TIMEOUT).call()?;
+    let mut r = ureq::get(&url)
+        .config()
+        .timeout_global(Some(REQUEST_TIMEOUT))
+        .http_status_as_error(false)
+        .build()
+        .call()?;
 
     let status = r.status();
     if status != 200 {
@@ -19,7 +24,7 @@ pub fn check(name: &str, token: &str) -> Result<()> {
         );
     }
 
-    let body = r.into_string()?;
+    let body = r.body_mut().read_to_string()?;
     if body != token {
         bail!("response body didn't match expected token");
     }
