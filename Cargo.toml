@@ -53,7 +53,7 @@ time = { version = "0.3", features = ["formatting", "macros"] }
 toml = "1"
 ureq = "3"
 uzers = "0.12"
-x509-parser = "0.17"
+x509-parser = "0.18"
 
 [target.'cfg(target_os="linux")'.dependencies]
 caps = "0.5"
