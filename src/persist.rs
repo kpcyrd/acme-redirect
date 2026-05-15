@@ -6,10 +6,10 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs;
 use std::fs::{DirEntry, File, OpenOptions};
-use std::io::prelude::*;
 use std::io::ErrorKind;
-use std::os::unix::fs::symlink;
+use std::io::prelude::*;
 use std::os::unix::fs::OpenOptionsExt;
+use std::os::unix::fs::symlink;
 use std::path::Path;
 use std::path::PathBuf;
 use time::OffsetDateTime;
@@ -80,12 +80,11 @@ impl FilePersist {
                 let entry = entry?;
                 let path = entry.path();
 
-                if let Some(Some(name)) = path.file_name().map(OsStr::to_str) {
-                    if let Ok(link) = fs::read_link(entry.path()) {
-                        if let Some(Some(version)) = link.file_name().map(OsStr::to_str) {
-                            live.insert(version.to_string(), name.to_string());
-                        }
-                    }
+                if let Some(Some(name)) = path.file_name().map(OsStr::to_str)
+                    && let Ok(link) = fs::read_link(entry.path())
+                    && let Some(Some(version)) = link.file_name().map(OsStr::to_str)
+                {
+                    live.insert(version.to_string(), name.to_string());
                 }
             }
         }
