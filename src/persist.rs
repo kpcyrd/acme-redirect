@@ -81,7 +81,7 @@ impl FilePersist {
                 let path = entry.path();
 
                 if let Some(Some(name)) = path.file_name().map(OsStr::to_str)
-                    && let Ok(link) = fs::read_link(entry.path())
+                    && let Ok(link) = fs::read_link(&path)
                     && let Some(Some(version)) = link.file_name().map(OsStr::to_str)
                 {
                     live.insert(version.to_string(), name.to_string());
