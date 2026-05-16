@@ -1,9 +1,11 @@
 use crate::config::Config;
 use crate::errors::*;
-use rand::seq::SliceRandom;
+use rand::distr::slice::Choose;
+use rand::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+// URL-safe base64 alphabet
 const VALID_CHARS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 #[inline]
@@ -40,13 +42,18 @@ impl Challenge {
         Ok(())
     }
 
+    // Generate a random token, used to test if acme-redirect httpd works correctly
     pub fn random(&mut self) -> Result<String> {
         const TOKEN_LEN: usize = 16;
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
-        let random = VALID_CHARS
-            .as_bytes()
-            .choose_multiple(&mut rng, TOKEN_LEN)
+        let Ok(chars) = Choose::new(VALID_CHARS.as_bytes()) else {
+            // This code should never be reached though, as VALID_CHARS is hard-coded
+            bail!("Challenge token alphabet must not be empty");
+        };
+        let random = (&mut rng)
+            .sample_iter(chars)
+            .take(TOKEN_LEN)
             .map(|b| *b as char)
             .collect::<String>();
 

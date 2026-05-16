@@ -1,26 +1,19 @@
 use crate::args::DaemonArgs;
 use crate::chall;
-use crate::config::{Config, BIND_ALL_PORT_80};
+use crate::config::{BIND_ALL_PORT_80, Config};
 use crate::errors::*;
 use crate::http_responses::*;
 use crate::sandbox;
-use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
-use actix_web::{middleware, App, HttpServer};
+use actix_web::{App, HttpServer, middleware};
+use actix_web::{HttpRequest, HttpResponse, Responder, get, web};
 use std::env;
 use std::fs;
 use std::net::TcpListener;
 use std::path::Path;
 
 fn get_host(req: &HttpRequest) -> Option<&str> {
-    if let Some(host) = req.headers().get("Host") {
-        if let Ok(host) = host.to_str() {
-            Some(host)
-        } else {
-            None
-        }
-    } else {
-        None
-    }
+    let host = req.headers().get("Host")?;
+    host.to_str().ok()
 }
 
 #[inline]

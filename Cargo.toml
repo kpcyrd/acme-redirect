@@ -6,7 +6,7 @@ authors = ["kpcyrd <git@rxv.cc>"]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/kpcyrd/acme-redirect"
 readme = "README.md"
-edition = "2021"
+edition = "2024"
 
 [package.metadata.deb]
 extended-description = """\
@@ -35,25 +35,25 @@ assets = [
 vendored = ["acme-micro/vendored"]
 
 [dependencies]
-acme-micro = "0.13"
+acme-micro = "0.14"
 actix-web = "4"
 anyhow = "1.0.28"
 clap = { version = "4.0.32", features = ["derive", "env"] }
 clap_complete = "4.0.7"
-colored = "2"
+colored = "3"
 config = { version = "0.15", default-features = false, features = ["toml"] }
 env_logger = "0.11"
 log = "0.4.8"
-nix = { version = "0.29", features = ["fs", "user"] }
+nix = { version = "0.31", features = ["fs", "user"] }
 pem = "3"
-rand = "0.8"
+rand = "0.10"
 serde = "1.0.106"
 serde_json = "1"
 time = { version = "0.3", features = ["formatting", "macros"] }
-toml = "0.8"
-ureq = "2"
+toml = "1"
+ureq = "3"
 uzers = "0.12"
-x509-parser = "0.17"
+x509-parser = "0.18"
 
 [target.'cfg(target_os="linux")'.dependencies]
 caps = "0.5"
