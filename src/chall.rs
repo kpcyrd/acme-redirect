@@ -47,7 +47,10 @@ impl Challenge {
         const TOKEN_LEN: usize = 16;
         let mut rng = rand::rng();
 
-        let chars = Choose::new(VALID_CHARS.as_bytes()).unwrap();
+        let Ok(chars) = Choose::new(VALID_CHARS.as_bytes()) else {
+            // This code should never be reached though, as VALID_CHARS is hard-coded
+            bail!("Challenge token alphabet must not be empty");
+        };
         let random = (&mut rng)
             .sample_iter(chars)
             .take(TOKEN_LEN)
