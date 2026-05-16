@@ -60,6 +60,7 @@ pub fn init(args: &DaemonArgs) -> Result<()> {
 
     if let Some((uid, gid)) = user {
         debug!("Dropping uid:gid to {}:{}", uid, gid);
+        // Remove the `cfg(...)` after this lands: https://github.com/nix-rust/nix/pull/2793
         #[cfg(not(target_os = "macos"))]
         nix::unistd::setgroups(&[]).context("Failed to clear supplementary groups")?;
         nix::unistd::setgid(gid).context("Failed to drop gid")?;
