@@ -171,8 +171,10 @@ cargo run -- daemon -B '[::]:8080' -v
 
 # boxxy
 
-acme-redirect uses setuid and chroot to drop privileges before accepting
-requests. This can be inspected with [boxxy][1].
+acme-redirect uses setuid, chroot and afterwards clears the
+[capability(7)](https://man7.org/linux/man-pages/man7/capabilities.7.html) sets
+to lock down the process and drop privileges before accepting requests. This
+can be inspected with [boxxy][1].
 
 ```bash
 mkdir -vp tmp/web
