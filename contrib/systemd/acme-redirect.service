@@ -3,16 +3,25 @@ Description=acme-redirect: http redirector with acme support
 After=network.target network-online.target
 
 [Service]
-ExecStart=/usr/bin/acme-redirect daemon --chroot --user acme-redirect
+User=acme-redirect
+ExecStart=/usr/bin/acme-redirect daemon --chroot
 
 WorkingDirectory=/run/acme-redirect
-ReadWritePaths=/run/acme-redirect
 
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_SYS_CHROOT
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SYS_CHROOT
+MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
-ProtectSystem=strict
 PrivateDevices=yes
-Restart=always
-RestartSec=0
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectSystem=strict
+RemoveIPC=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=yes
 
 [Install]
 WantedBy=multi-user.target
