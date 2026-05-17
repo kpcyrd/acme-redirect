@@ -36,7 +36,7 @@ vendored = ["acme-micro/vendored"]
 
 [dependencies]
 acme-micro = "0.14"
-actix-web = "4"
+actix-web = { version = "4", default-features = false, features = ["macros", "unicode"] }
 anyhow = "1.0.28"
 clap = { version = "4.0.32", features = ["derive", "env"] }
 clap_complete = "4.0.7"
