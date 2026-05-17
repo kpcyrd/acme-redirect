@@ -27,5 +27,8 @@ RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 RestrictNamespaces=yes
 RestrictSUIDSGID=yes
 
+Restart=always
+RestartSec=2s
+
 [Install]
 WantedBy=multi-user.target
