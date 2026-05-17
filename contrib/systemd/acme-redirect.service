@@ -10,17 +10,21 @@ WorkingDirectory=/run/acme-redirect
 
 AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_SYS_CHROOT
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SYS_CHROOT
+LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
 PrivateTmp=yes
 ProtectControlGroups=yes
 ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectSystem=strict
 RemoveIPC=yes
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
 RestrictSUIDSGID=yes
 
 [Install]
