@@ -51,7 +51,7 @@ serde = "1.0.106"
 serde_json = "1"
 time = { version = "0.3", features = ["formatting", "macros"] }
 toml = "1"
-ureq = "3"
+ureq = { version = "3", features = ["platform-verifier"] }
 uzers = "0.12"
 x509-parser = "0.18"
 
