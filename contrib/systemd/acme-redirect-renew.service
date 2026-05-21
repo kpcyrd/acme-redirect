@@ -2,4 +2,4 @@
 Description=acme-redirect: renew certs if necessary
 
 [Service]
-ExecStart=/usr/bin/acme-redirect renew
+ExecStart=/usr/bin/acme-redirect renew --check-first
