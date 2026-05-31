@@ -39,6 +39,35 @@ fn drop_caps() -> Result<()> {
     Ok(())
 }
 
+fn landlock() -> Result<()> {
+    #[cfg(target_os = "linux")]
+    {
+        use landlock::{
+            Access, AccessFs, Ruleset, RulesetAttr, RulesetCreatedAttr, RulesetStatus,
+            path_beneath_rules,
+        };
+
+        let path = env::current_dir().context("Failed to determine current directory")?;
+
+        let abi = landlock::ABI::V1;
+        let status = Ruleset::default()
+            .handle_access(AccessFs::from_all(abi))?
+            .create()?
+            .add_rules(path_beneath_rules(&[path], AccessFs::from_read(abi)))?
+            .restrict_self()?;
+
+        match status.ruleset {
+            RulesetStatus::FullyEnforced => info!("Successfully enabled landlock rules"),
+            RulesetStatus::PartiallyEnforced => {
+                warn!("Partially enabled landlock rules, please update your kernel")
+            }
+            RulesetStatus::NotEnforced => bail!("Could not enforce, please update your kernel"),
+        }
+    }
+
+    Ok(())
+}
+
 pub fn init(args: &DaemonArgs) -> Result<()> {
     let user = if let Some(name) = &args.user {
         debug!("Resolving uid for {:?}", name);
@@ -68,6 +97,15 @@ pub fn init(args: &DaemonArgs) -> Result<()> {
     }
 
     drop_caps()?;
+
+    if let Err(err) = landlock() {
+        // This is intentionally not a fatal error, so you can run acme-redirect on kernels
+        // without landlock support.
+        // On most deployments, the same effect of having filesystem access restricted to a
+        // ready-only webroot (and nothing else) is already enforced through chroot and
+        // filesystem permissions.
+        warn!("Failed to set up landlock: {err:#}");
+    }
 
     Ok(())
 }
