@@ -7,7 +7,9 @@ use std::time::Duration;
 
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
-pub fn check(name: &str, token: &str) -> Result<()> {
+pub fn check(name: &str, config: &Config) -> Result<()> {
+    let mut chall = Challenge::new(config);
+    let token = chall.random()?;
     let url = format!("http://{name}/.well-known/acme-challenge/{token}");
     let mut r = ureq::get(&url)
         .config()
@@ -29,17 +31,16 @@ pub fn check(name: &str, token: &str) -> Result<()> {
         bail!("response body didn't match expected token");
     }
 
+    chall.cleanup()?;
+
     Ok(())
 }
 
 pub fn run(config: Config, mut args: CheckArgs) -> Result<()> {
-    let mut chall = Challenge::new(&config);
-    let token = chall.random()?;
-
     let filter = args.certs.drain(..).collect::<HashSet<_>>();
     for cert in config.filter_certs(&filter) {
         for dns_name in &cert.dns_names {
-            if let Err(err) = check(dns_name, &token) {
+            if let Err(err) = check(dns_name, &config) {
                 error!(
                     "Check failed ({:?} -> {:?}): {:#}",
                     cert.name, dns_name, err
@@ -49,8 +50,6 @@ pub fn run(config: Config, mut args: CheckArgs) -> Result<()> {
             }
         }
     }
-
-    chall.cleanup()?;
 
     Ok(())
 }
