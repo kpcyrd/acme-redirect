@@ -130,8 +130,7 @@ impl FilePersist {
 
         let path = self.path.join("certs");
         debug!("creating folder: {:?}", path);
-        fs::create_dir_all(&path)
-            .with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+        fs::create_dir_all(&path).with_context(|| anyhow!("Failed to create folder: {path:?}"))?;
 
         let mut i = 0;
         let path = loop {
@@ -147,7 +146,7 @@ impl FilePersist {
             match err {
                 Err(e) if e.kind() == ErrorKind::AlreadyExists => (),
                 Err(_) => {
-                    err.with_context(|| anyhow!("Failed to create folder: {:?}", &path))?;
+                    err.with_context(|| anyhow!("Failed to create folder: {path:?}"))?;
                 }
                 Ok(_) => break path,
             }
@@ -187,8 +186,7 @@ impl FilePersist {
 
         info!("marking cert live");
         let live = self.path.join("live");
-        fs::create_dir_all(&live)
-            .with_context(|| anyhow!("Failed to create folder: {:?}", &live))?;
+        fs::create_dir_all(&live).with_context(|| anyhow!("Failed to create folder: {live:?}"))?;
         let live = live.join(name);
 
         // TODO: this should be atomic (ln -sf)
