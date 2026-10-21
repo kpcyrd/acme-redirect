@@ -1,6 +1,7 @@
 use crate::acme;
 use crate::args::RenewArgs;
 use crate::chall::Challenge;
+use crate::check;
 use crate::config::CertConfig;
 use crate::config::Config;
 use crate::errors::*;
@@ -70,6 +71,11 @@ fn renew_cert(
     if args.dry_run || args.hooks_only {
         info!("renewing {:?} (dry run)", cert.name);
     } else {
+        if args.check_first {
+            info!("checking before renewal {:?}", cert.name);
+            check::check(&cert.name, config).with_context(|| anyhow!("checking of domain prior to renewal failed {:?}", cert.name))?;
+        }
+
         info!("renewing {:?}", cert.name);
         acme::request(
             persist.clone(),

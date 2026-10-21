@@ -79,6 +79,9 @@ pub struct RenewArgs {
     /// Do not actually do anything, just show what would happen
     #[arg(short = 'n', long)]
     pub dry_run: bool,
+    /// check before requesting renewal or creation of a certificate
+    #[arg(long)]
+    pub check_first: bool,
     /// Renew certificates even if they are not about to expire
     #[arg(long)]
     pub force_renew: bool,
