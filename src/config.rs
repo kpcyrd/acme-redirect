@@ -32,6 +32,7 @@ pub struct SystemConfig {
     pub addr: Option<String>,
     pub data_dir: PathBuf,
     pub chall_dir: PathBuf,
+    pub group: Option<String>,
     #[serde(default)]
     pub exec: Vec<String>,
     #[serde(default)]
@@ -83,7 +84,7 @@ pub struct CertConfig {
     pub exec: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Config {
     pub certs: Vec<CertConfig>,
     pub acme: AcmeConfig,
@@ -154,6 +155,36 @@ mod tests {
                     dns_names: vec!["example.com".to_string(), "www.example.com".to_string(),],
                     must_staple: false,
                     exec: vec![],
+                },
+            }
+        );
+    }
+
+    #[test]
+    fn parse_example_config() {
+        use clap::Parser;
+        let config = load(Args::parse_from([
+            "acme-redirect",
+            "-c",
+            "contrib/confs/acme-redirect.conf",
+            "status",
+        ]))
+        .unwrap();
+
+        assert_eq!(
+            config,
+            Config {
+                certs: Default::default(),
+                acme: AcmeConfig {
+                    acme_url: "https://acme-v02.api.letsencrypt.org/directory".into(),
+                    renew_if_days_left: 30,
+                    ..Default::default()
+                },
+                system: SystemConfig {
+                    data_dir: "/var/lib/acme-redirect".into(),
+                    chall_dir: "/run/acme-redirect".into(),
+                    group: Some("acme-redirect".into()),
+                    ..Default::default()
                 },
             }
         );

@@ -4,25 +4,35 @@ use crate::errors::*;
 use acme_micro::Certificate;
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::fs;
-use std::fs::{DirEntry, File, OpenOptions};
+use std::fs::{self, DirEntry, File, OpenOptions};
 use std::io::ErrorKind;
 use std::io::prelude::*;
-use std::os::unix::fs::OpenOptionsExt;
-use std::os::unix::fs::symlink;
-use std::path::Path;
-use std::path::PathBuf;
+use std::os::unix::fs::{OpenOptionsExt, chown, symlink};
+use std::path::{Path, PathBuf};
 use time::OffsetDateTime;
 
 #[derive(Clone)]
 pub struct FilePersist {
     path: PathBuf,
+    group: Option<u32>,
 }
 
 impl FilePersist {
     pub fn new(config: &Config) -> FilePersist {
+        let group = if let Some(group) = &config.system.group {
+            debug!("Resolving gid for {:?}", group);
+            let gid = uzers::get_group_by_name(&group).map(|group| group.gid());
+            if gid.is_none() {
+                error!("Failed to look up group: {group:?}");
+            }
+            gid
+        } else {
+            None
+        };
+
         FilePersist {
             path: PathBuf::from(&config.system.data_dir),
+            group,
         }
     }
 
@@ -162,27 +172,27 @@ impl FilePersist {
 
         debug!("writing privkey");
         let privkey_path = path.join("privkey");
-        write(&privkey_path, 0o440, fullcert.private_key().as_bytes())?;
+        write(&privkey_path, 0o440, self.group, fullcert.private_key())?;
 
         debug!("writing full cert with intermediates");
         let fullkey_path = path.join("fullchain");
-        write(&fullkey_path, 0o444, fullcert.certificate().as_bytes())?;
+        write(&fullkey_path, 0o444, self.group, fullcert.certificate())?;
 
         debug!("writing chain");
         let chain_path = path.join("chain");
-        write(&chain_path, 0o444, chain.as_bytes())?;
+        write(&chain_path, 0o444, self.group, &chain)?;
 
         debug!("writing single cert");
         let cert_path = path.join("cert");
-        write(&cert_path, 0o444, cert.as_bytes())?;
+        write(&cert_path, 0o444, self.group, &cert)?;
 
         debug!("writing bundle");
         let bundle_path = path.join("bundle");
-        write(&bundle_path, 0o440, bundle.as_bytes())?;
+        write(&bundle_path, 0o440, self.group, &bundle)?;
 
         debug!("writing full bundle with intermediates");
         let fullbundle_path = path.join("fullbundle");
-        write(&fullbundle_path, 0o440, full_bundle.as_bytes())?;
+        write(&fullbundle_path, 0o440, self.group, &full_bundle)?;
 
         info!("marking cert live");
         let live = self.path.join("live");
@@ -192,7 +202,8 @@ impl FilePersist {
         // TODO: this should be atomic (ln -sf)
         // https://github.com/coreutils/coreutils/blob/2ed7c2867974ccf7abc61c34ad7bf9565489c18e/src/force-link.c#L142-L182
         if live.exists() {
-            fs::remove_file(&live).context("Failed to delete old symlink")?;
+            fs::remove_file(&live)
+                .with_context(|| anyhow!("Failed to delete old symlink: {live:?}"))?;
         }
         symlink(&path, &live)
             .with_context(|| anyhow!("Failed to create symlink: {:?} -> {:?}", path, live))?;
@@ -211,9 +222,14 @@ fn create(path: &Path, mode: u32) -> Result<File> {
         .map_err(Error::from)
 }
 
-fn write(path: &Path, mode: u32, data: &[u8]) -> Result<()> {
+fn write(path: &Path, mode: u32, group: Option<u32>, data: &str) -> Result<()> {
     let mut f = create(path, mode)?;
-    f.write_all(data)?;
+    f.write_all(data.as_bytes())?;
+    if let Some(gid) = group
+        && let Err(err) = chown(path, None, Some(gid))
+    {
+        error!("Failed to change group of {path:?}: {err:#}");
+    }
     Ok(())
 }
 
